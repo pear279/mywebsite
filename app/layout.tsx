@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import 'lenis/dist/lenis.css';
+import Script from 'next/script';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -17,7 +17,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <head>
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
+      </head>
+      <body>
+        {children}
+        <Script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js" strategy="beforeInteractive" />
+      </body>
     </html>
   );
 }

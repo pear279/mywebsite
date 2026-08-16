@@ -1,14 +1,37 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Observer } from 'gsap/Observer';
 import { useGSAP } from '@gsap/react';
 import ClickSpark from '@/components/ClickSpark';
 
-gsap.registerPlugin(ScrollTrigger, Observer, useGSAP);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+type LenisInstance = {
+  scroll: number;
+  raf: (time: number) => void;
+  on: (event: 'scroll', callback: () => void) => void;
+  off: (event: 'scroll', callback: () => void) => void;
+  scrollTo: (target: number | string | HTMLElement, options?: {
+    duration?: number;
+    easing?: (value: number) => number;
+    force?: boolean;
+    immediate?: boolean;
+    offset?: number;
+    onComplete?: () => void;
+  }) => void;
+  destroy: () => void;
+};
+
+type LenisConstructor = new (options?: {
+  lerp?: number;
+  smoothWheel?: boolean;
+  syncTouch?: boolean;
+  wheelMultiplier?: number;
+  touchMultiplier?: number;
+  anchors?: boolean;
+}) => LenisInstance;
 
 const navigation = [
   ['首页', '#home'],
@@ -29,21 +52,21 @@ const timeline = [
 
 const projects = [
   {
-    id: 'project-moodseed', no: '01', date: '2025.02 — 2025.12', title: 'moodseed', stickyTitle: 'moodseed 情绪社交',
+    id: 'project-moodseed', no: '01', date: '2025.02 — 2025.12', title: 'moodseed',
     subtitle: '面向 Z 世代的 AI 情绪社交产品',
     description: '从 107 份问卷与 6 位目标用户深访出发，独立推进用户研究、需求分析、AI 能力设计、原型与 Demo 验证，设计“情绪识别—对话引导—内容推荐”的完整服务链路。',
     tags: ['用户研究', 'RAG', 'NLP', 'Qwen', '商业模式'], repo: 'https://github.com/pear279?tab=repositories', repoLabel: '项目仓库整理中',
     tone: 'lime', visualTitle: ['MOOD', 'SEED'], keywords: ['EMOTION AI', 'LOW-DISTURBANCE', 'PERSONALIZED'],
   },
   {
-    id: 'project-dongfang', no: '02', date: '2025.11 — NOW', title: '东方游', stickyTitle: '“东方游” AI 旅游导览',
+    id: 'project-dongfang', no: '02', date: '2025.11 — NOW', title: '东方游',
     subtitle: '面向海外游客的个性化文旅 Agent',
     description: '参与前端 Demo 与产品共创，基于垂直知识库和用户画像生成个性化路线与导览讲解；用 Agent Harness 组织 Multi-Agent 协作，并搭建古籍数据 ETL Pipeline。',
     tags: ['Multi-Agent', 'Agent Harness', 'LlamaIndex', 'ETL', '地图交互'], repo: 'https://github.com/pear279/China-Stroll', repoLabel: 'GitHub ↗',
     tone: 'blue', visualTitle: ['CHINA', 'STROLL'], keywords: ['ROUTE PLANNING', 'LOCAL KNOWLEDGE', 'TRAVEL AGENT'],
   },
   {
-    id: 'project-soundlens', no: '03', date: '2026.02 — 2026.03', title: 'SoundLens 音象', stickyTitle: 'SoundLens 音象',
+    id: 'project-soundlens', no: '03', date: '2026.02 — 2026.03', title: 'SoundLens 音象',
     subtitle: '为听障人士设计的实时声音感知产品',
     description: '独立开发声音监测、波形可视化、异常提醒与停顿检测。用状态机降低误报与抖动，并从隐私和工程落地角度完成服务端写入与本地缓存兜底。',
     tags: ['Next.js', 'TypeScript', 'Web Audio API', 'Supabase', '状态机'], repo: 'https://github.com/pear279/SoundLens', repoLabel: 'GitHub ↗',
@@ -163,14 +186,6 @@ function ChapterHead({ no, label, title, note }: { no: string; label: string; ti
   );
 }
 
-function StickyLabel({ eyebrow, title, date, total }: { eyebrow: string; title: string; date: string; total: number }) {
-  return (
-    <div className="work-sticky-label" data-sticky-caption aria-hidden="true">
-      <small>{eyebrow}</small><span data-stick-name>{title}</span><time data-stick-date>{date}</time><b data-stick-progress>01 / 0{total}</b>
-    </div>
-  );
-}
-
 function SkillCard({ card, duplicate = false }: { card: (typeof skillRows)[number][number]; duplicate?: boolean }) {
   return (
     <article
@@ -192,156 +207,45 @@ export default function HomePage() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
-    const lenis = new Lenis({
-      lerp: 0.085,
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const Lenis = (window as typeof window & { Lenis?: LenisConstructor }).Lenis;
+    let lenis: LenisInstance | undefined;
+    let animationFrame = 0;
+
+    const updateHeader = (scrollPosition: number) => {
+      setScrolled(scrollPosition > window.innerHeight * 0.56);
+    };
+
+    const onNativeScroll = () => updateHeader(window.scrollY);
+
+    if (!Lenis || reducedMotion.matches) {
+      onNativeScroll();
+      window.addEventListener('scroll', onNativeScroll, { passive: true });
+      return () => window.removeEventListener('scroll', onNativeScroll);
+    }
+
+    lenis = new Lenis({
+      lerp: 0.1,
       smoothWheel: true,
       syncTouch: false,
-      wheelMultiplier: 0.92,
+      wheelMultiplier: 1,
+      touchMultiplier: 1,
       anchors: false,
     });
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const desktopNavigation = window.matchMedia('(min-width: 1041px) and (pointer: fine)');
-    const sections = Array.from(root.querySelectorAll<HTMLElement>('[data-snap-section]'));
-    const sectionIndexById = new Map(sections.map((section, index) => [section.id, index]));
-    type WorkKey = 'experience' | 'projects';
-    type WorkGroup = { panels: HTMLElement[]; caption: HTMLElement | null; index: number };
-    const workGroups: Record<WorkKey, WorkGroup> = {
-      experience: {
-        panels: Array.from(root.querySelectorAll<HTMLElement>('#experience [data-work-panel]')),
-        caption: root.querySelector<HTMLElement>('#experience [data-sticky-caption]'),
-        index: 0,
-      },
-      projects: {
-        panels: Array.from(root.querySelectorAll<HTMLElement>('#projects [data-work-panel]')),
-        caption: root.querySelector<HTMLElement>('#projects [data-sticky-caption]'),
-        index: 0,
-      },
-    };
-    let currentSectionIndex = sections.reduce((closest, section, index) => (
-      Math.abs(section.offsetTop - window.scrollY) < Math.abs(sections[closest].offsetTop - window.scrollY) ? index : closest
-    ), 0);
-    let inputLocked = false;
-    let observer: Observer | undefined;
 
     const updateLocation = (hash: string) => {
       if (window.location.hash !== hash) window.history.replaceState(null, '', hash);
     };
 
-    const updateCaption = (group: WorkGroup, panel: HTMLElement, index: number) => {
-      const name = group.caption?.querySelector<HTMLElement>('[data-stick-name]');
-      const date = group.caption?.querySelector<HTMLElement>('[data-stick-date]');
-      const progress = group.caption?.querySelector<HTMLElement>('[data-stick-progress]');
-      if (name) name.textContent = panel.dataset.stickyName ?? '';
-      if (date) date.textContent = panel.dataset.stickyDate ?? '';
-      if (progress) progress.textContent = `${String(index + 1).padStart(2, '0')} / ${String(group.panels.length).padStart(2, '0')}`;
-    };
-
-    const showWorkPanel = (key: WorkKey, nextIndex: number, direction: number, animate = true, syncHash = true) => {
-      const group = workGroups[key];
-      const boundedIndex = Math.max(0, Math.min(group.panels.length - 1, nextIndex));
-      const currentPanel = group.panels[group.index];
-      const nextPanel = group.panels[boundedIndex];
-      if (!nextPanel) return;
-      group.panels.forEach((panel, index) => {
-        const active = index === boundedIndex;
-        panel.classList.toggle('is-active', active);
-        panel.setAttribute('aria-hidden', String(!active));
-        panel.inert = !active;
-      });
-      updateCaption(group, nextPanel, boundedIndex);
-      group.index = boundedIndex;
-      if (syncHash) updateLocation(`#${nextPanel.id}`);
-      if (!animate || currentPanel === nextPanel || reducedMotion.matches) {
-        gsap.set(group.panels, { autoAlpha: 0, yPercent: 0, scale: 1 });
-        gsap.set(nextPanel, { autoAlpha: 1 });
-        inputLocked = false;
-        return;
-      }
-      inputLocked = true;
-      gsap.killTweensOf(group.panels);
-      const timeline = gsap.timeline({
-        defaults: { overwrite: true },
-        onComplete: () => { inputLocked = false; },
-      })
-        .to(currentPanel, { autoAlpha: 0, yPercent: direction > 0 ? -7 : 7, scale: 0.985, duration: 0.28, ease: 'power2.in' })
-        .fromTo(nextPanel,
-          { autoAlpha: 0, yPercent: direction > 0 ? 7 : -7, scale: 0.985 },
-          { autoAlpha: 1, yPercent: 0, scale: 1, duration: 0.48, ease: 'power4.out' },
-          '-=0.08');
-      if (group.caption) {
-        timeline.fromTo(group.caption, { scale: 0.96 }, { scale: 1.035, duration: 0.2, yoyo: true, repeat: 1, ease: 'power2.out' }, '-=0.34');
-      }
-    };
-
-    const moveToSection = (nextIndex: number, direction: number, targetHash?: string) => {
-      const boundedIndex = Math.max(0, Math.min(sections.length - 1, nextIndex));
-      const section = sections[boundedIndex];
-      if (!section || boundedIndex === currentSectionIndex) return;
-      inputLocked = true;
-      currentSectionIndex = boundedIndex;
-      const workKey = section.id === 'experience' || section.id === 'projects' ? section.id as WorkKey : null;
-      if (workKey) {
-        const requestedPanelIndex = targetHash
-          ? workGroups[workKey].panels.findIndex((panel) => `#${panel.id}` === targetHash)
-          : -1;
-        const entryIndex = requestedPanelIndex >= 0
-          ? requestedPanelIndex
-          : direction > 0 ? 0 : workGroups[workKey].panels.length - 1;
-        showWorkPanel(workKey, entryIndex, direction, false, false);
-        inputLocked = true;
-      }
-      lenis.scrollTo(section.offsetTop, {
-        duration: reducedMotion.matches ? 0.01 : 0.92,
-        lock: true,
-        force: true,
-        easing: (t) => 1 - Math.pow(1 - t, 4),
-        onComplete: () => {
-          inputLocked = false;
-          updateLocation(targetHash ?? `#${section.id}`);
-        },
-      });
-    };
-
-    const advance = (direction: number) => {
-      if (inputLocked || !desktopNavigation.matches) return;
-      const currentSection = sections[currentSectionIndex];
-      if (!currentSection) return;
-      if (currentSection.id === 'experience') {
-        const group = workGroups.experience;
-        const next = group.index + direction;
-        if (next >= 0 && next < group.panels.length) {
-          showWorkPanel('experience', next, direction);
-          return;
-        }
-      }
-      if (currentSection.id === 'projects') {
-        const group = workGroups.projects;
-        const next = group.index + direction;
-        if (next >= 0 && next < group.panels.length) {
-          showWorkPanel('projects', next, direction);
-          return;
-        }
-      }
-      moveToSection(currentSectionIndex + direction, direction);
-    };
-
     const resolveAnchor = (hash: string) => {
       const target = root.querySelector<HTMLElement>(hash);
       if (!target) return;
-      const workPanel = target.closest<HTMLElement>('[data-work-panel]');
-      const section = target.closest<HTMLElement>('[data-snap-section]') ?? target;
-      const sectionIndex = sectionIndexById.get(section.id);
-      if (sectionIndex === undefined) return;
-      if (workPanel) {
-        const key = section.id as WorkKey;
-        const panelIndex = workGroups[key].panels.indexOf(workPanel);
-        if (panelIndex >= 0) showWorkPanel(key, panelIndex, panelIndex >= workGroups[key].index ? 1 : -1, false, false);
-      }
-      if (sectionIndex === currentSectionIndex) {
-        updateLocation(hash);
-      } else {
-        moveToSection(sectionIndex, sectionIndex > currentSectionIndex ? 1 : -1, hash);
-      }
+      lenis?.scrollTo(target, {
+        duration: 1.05,
+        easing: (value) => 1 - Math.pow(1 - value, 4),
+        force: true,
+        onComplete: () => updateLocation(hash),
+      });
     };
 
     const onAnchorClick = (event: MouseEvent) => {
@@ -352,87 +256,30 @@ export default function HomePage() {
       resolveAnchor(anchor.hash);
     };
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!desktopNavigation.matches || event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
-      if (target?.matches('input, textarea, select, [contenteditable="true"]')) return;
-      if (['ArrowDown', 'PageDown', ' '].includes(event.key)) {
-        event.preventDefault();
-        advance(1);
-      } else if (['ArrowUp', 'PageUp'].includes(event.key)) {
-        event.preventDefault();
-        advance(-1);
-      } else if (event.key === 'Home') {
-        event.preventDefault();
-        moveToSection(0, -1);
-      } else if (event.key === 'End') {
-        event.preventDefault();
-        moveToSection(sections.length - 1, 1);
-      }
-    };
-
-    const setupObserver = () => {
-      observer?.kill();
-      observer = undefined;
-      if (!desktopNavigation.matches) {
-        lenis.start();
-        Object.values(workGroups).forEach((group) => {
-          group.panels.forEach((panel) => {
-            panel.inert = false;
-            panel.removeAttribute('aria-hidden');
-          });
-        });
-        return;
-      }
-      lenis.start();
-      Object.entries(workGroups).forEach(([key, group]) => showWorkPanel(key as WorkKey, group.index, 1, false, false));
-      observer = Observer.create({
-        id: 'chapter-wheel-navigation',
-        target: window,
-        type: 'wheel',
-        preventDefault: true,
-        tolerance: 28,
-        wheelSpeed: 1,
-        ignoreCheck: (event) => (event as WheelEvent).ctrlKey || (event as WheelEvent).metaKey,
-        onChangeY: (self) => {
-          const currentSection = sections[currentSectionIndex];
-          if (currentSection) lenis.scrollTo(currentSection.offsetTop, { immediate: true, force: true });
-          advance(self.deltaY > 0 ? 1 : -1);
-        },
-      });
-    };
-
-    Object.entries(workGroups).forEach(([key, group]) => showWorkPanel(key as WorkKey, group.index, 1, false, false));
     const onScroll = () => {
-      setScrolled(lenis.scroll > window.innerHeight * 0.56);
+      if (!lenis) return;
+      updateHeader(lenis.scroll);
       ScrollTrigger.update();
-      if (!inputLocked) {
-        currentSectionIndex = sections.reduce((closest, section, index) => (
-          Math.abs(section.offsetTop - lenis.scroll) < Math.abs(sections[closest].offsetTop - lenis.scroll) ? index : closest
-        ), currentSectionIndex);
-      }
     };
-    const raf = (time: number) => lenis.raf(time * 1000);
+
+    const raf = (time: number) => {
+      lenis?.raf(time);
+      animationFrame = requestAnimationFrame(raf);
+    };
+
+    onScroll();
     lenis.on('scroll', onScroll);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
+    animationFrame = requestAnimationFrame(raf);
     root.addEventListener('click', onAnchorClick);
-    window.addEventListener('keydown', onKeyDown);
-    desktopNavigation.addEventListener('change', setupObserver);
-    setupObserver();
     if (window.location.hash && window.location.hash !== '#home') {
-      requestAnimationFrame(() => resolveAnchor(window.location.hash));
+      requestAnimationFrame(() => lenis?.scrollTo(window.location.hash, { immediate: true, force: true }));
     }
     ScrollTrigger.refresh();
     return () => {
-      observer?.kill();
-      lenis.off('scroll', onScroll);
-      gsap.ticker.remove(raf);
+      cancelAnimationFrame(animationFrame);
+      lenis?.off('scroll', onScroll);
       root.removeEventListener('click', onAnchorClick);
-      window.removeEventListener('keydown', onKeyDown);
-      desktopNavigation.removeEventListener('change', setupObserver);
-      gsap.killTweensOf([...workGroups.experience.panels, ...workGroups.projects.panels]);
-      lenis.destroy();
+      lenis?.destroy();
     };
   }, []);
 
@@ -461,12 +308,11 @@ export default function HomePage() {
       })
         .to('.hero-role', { autoAlpha: 0, y: -18, duration: 0.34 }, 0)
         .to('.scroll-cue', { autoAlpha: 0, y: 10, duration: 0.3 }, 0)
-        .to('.hero-mark-inner', { yPercent: -4, scale: 0.96, duration: 1 }, 0)
         .to('.hero-mark', { autoAlpha: 0, duration: 0.66 }, 0.16)
         .to('.hero-haze--near', { autoAlpha: 0, scale: 1.08, duration: 1 }, 0)
         .to('.hero-depth', { autoAlpha: 0.34, duration: 1 }, 0);
 
-      gsap.utils.toArray<HTMLElement>('[data-reveal]:not([data-work-panel])').forEach((element) => {
+      gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
         gsap.from(element, {
           autoAlpha: 0,
           y: 38,
@@ -475,48 +321,14 @@ export default function HomePage() {
           scrollTrigger: { trigger: element, start: 'top 86%', once: true },
         });
       });
-
-      const hero = rootRef.current?.querySelector<HTMLElement>('.hero');
-      const heroMark = hero?.querySelector<HTMLElement>('.hero-mark-inner');
-      const heroHaze = hero?.querySelector<HTMLElement>('.hero-haze--near');
-      const finePointer = window.matchMedia('(pointer: fine)');
-      if (!hero || !heroMark || !heroHaze || !finePointer.matches) {
-        return () => {
-          intro.kill();
-          exit.kill();
-        };
-      }
-      const moveX = gsap.quickTo(heroMark, 'x', { duration: 0.72, ease: 'power3.out' });
-      const moveY = gsap.quickTo(heroMark, 'y', { duration: 0.72, ease: 'power3.out' });
-      const hazeX = gsap.quickTo(heroHaze, 'x', { duration: 1.05, ease: 'power3.out' });
-      const hazeY = gsap.quickTo(heroHaze, 'y', { duration: 1.05, ease: 'power3.out' });
-      const onPointerMove = (event: PointerEvent) => {
-        const bounds = hero.getBoundingClientRect();
-        const normalizedX = (event.clientX - bounds.left) / bounds.width - 0.5;
-        const normalizedY = (event.clientY - bounds.top) / bounds.height - 0.5;
-        moveX(normalizedX * 10);
-        moveY(normalizedY * 7);
-        hazeX(normalizedX * -18);
-        hazeY(normalizedY * -11);
-      };
-      const onPointerLeave = () => {
-        moveX(0);
-        moveY(0);
-        hazeX(0);
-        hazeY(0);
-      };
-      hero.addEventListener('pointermove', onPointerMove);
-      hero.addEventListener('pointerleave', onPointerLeave);
       return () => {
-        hero.removeEventListener('pointermove', onPointerMove);
-        hero.removeEventListener('pointerleave', onPointerLeave);
         intro.kill();
         exit.kill();
       };
     });
 
     mm.add('(prefers-reduced-motion: reduce)', () => {
-      gsap.set('[data-reveal]:not([data-work-panel])', { autoAlpha: 1, y: 0 });
+      gsap.set('[data-reveal]', { autoAlpha: 1, y: 0 });
       gsap.set('.hero-artwork, .hero-role, .scroll-cue', { autoAlpha: 1, x: 0, y: 0 });
     });
 
@@ -544,7 +356,7 @@ export default function HomePage() {
       </header>
 
       <main>
-        <section className="hero" id="home" data-snap-section>
+        <section className="hero" id="home">
           <ClickSpark sparkColor="#fff" sparkSize={12} sparkRadius={20} sparkCount={9} duration={500}>
             <span className="hero-depth" aria-hidden="true" />
             <span className="hero-haze hero-haze--far" aria-hidden="true" />
@@ -566,7 +378,7 @@ export default function HomePage() {
           </ClickSpark>
         </section>
 
-        <section className="about section" id="about" data-motion-section data-nav-section data-snap-section>
+        <section className="about section" id="about" data-motion-section data-nav-section>
           <div className="section-kicker" data-reveal><span>( 01 )</span><span>ABOUT / INDEX</span></div>
           <div className="about-layout">
             <div className="about-primary" data-reveal>
@@ -592,11 +404,10 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="experience section work-chapter" id="experience" data-motion-section data-nav-section data-snap-section>
+        <section className="experience section" id="experience" data-motion-section data-nav-section>
           <ChapterHead no="02" label="EXPERIENCE" title="工作经历" note="两段实习，把 AI 能力放进真实产品与协作流程。" />
-          <div className="work-stream" data-work-stream>
-            <StickyLabel eyebrow="EXPERIENCE" title="腾讯 · 浏览器 Agent 组" date="2026.05 — 2026.08" total={2} />
-            <article className="experience-row is-active" id="experience-tencent" data-work-panel data-sticky-name="腾讯 · 浏览器 Agent 组" data-sticky-date="2026.05 — 2026.08">
+          <div className="work-stream">
+            <article className="experience-row" id="experience-tencent" data-reveal>
               <div className="experience-main">
                 <div className="experience-head"><span className="experience-no">01</span><div><h3>腾讯</h3><p>浏览器产品部 Agent 组 · 产品策划</p></div><time>2026.05 — 2026.08</time></div>
                 <ul><li>参与 9 个 P0 / P1 需求，独立跟进并创建 4 个需求单，协同设计、开发与法务推进落地。</li><li>负责翻译、通信助手与 Agent 模型评测，设计题集和标准，推动模型效果迭代。</li><li>分析短剧消费 DAU 与留存漏斗，通过 A/B 实验验证内容分发策略并优化用户观看时长。</li></ul>
@@ -604,7 +415,7 @@ export default function HomePage() {
               </div>
               <div className="experience-visual visual-violet"><span>AGENT<br />BROWSER</span><small>模型评测 · 内容策略 · 用户洞察</small></div>
             </article>
-            <article className="experience-row" id="experience-codexpert" data-work-panel data-sticky-name="CodeXpert 云端编码智能体" data-sticky-date="2025.12 — 2026.04">
+            <article className="experience-row" id="experience-codexpert" data-reveal>
               <div className="experience-main">
                 <div className="experience-head"><span className="experience-no">02</span><div><h3>元数信息技术</h3><p>CodeXpert 云端编码智能体 · AI 产品经理</p></div><time>2025.12 — 2026.04</time></div>
                 <ul><li>参与 AI Coding Agent 从 MVP 到上线的完整推进，完成场景拆解、能力设计与测试验证。</li><li>推动“需求—代码—测试—PR”任务链路打通，提升 AI 在真实研发工作流中的可用性。</li><li>参与数据埋点方案与品牌物料设计，为功能分析、路径观察和产品转化建立基础。</li></ul>
@@ -615,12 +426,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="projects section work-chapter" id="projects" data-motion-section data-nav-section data-snap-section>
+        <section className="projects section" id="projects" data-motion-section data-nav-section>
           <ChapterHead no="03" label="SELECTED PROJECTS" title="项目作品" note="三个产品，回应情绪、旅行与无障碍感知中的真实问题。" />
-          <div className="work-stream project-list" data-work-stream>
-            <StickyLabel eyebrow="PROJECT" title={projects[0].stickyTitle} date={projects[0].date} total={3} />
-            {projects.map((project, projectIndex) => (
-              <article className={`project ${projectIndex === 0 ? 'is-active' : ''}`} id={project.id} key={project.id} data-work-panel data-sticky-name={project.stickyTitle} data-sticky-date={project.date}>
+          <div className="work-stream project-list">
+            {projects.map((project) => (
+              <article className="project" id={project.id} key={project.id} data-reveal>
                 <div className="project-info">
                   <div className="project-meta"><span>{project.no}</span><time>{project.date}</time></div>
                   <h3>{project.title}</h3><h4>{project.subtitle}</h4><p>{project.description}</p>
@@ -637,7 +447,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="skills section" id="skills" data-motion-section data-nav-section data-snap-section>
+        <section className="skills section" id="skills" data-motion-section data-nav-section>
           <ChapterHead no="04" label="CAPABILITIES" title="技能特长" note="产品判断、AI 理解、数据意识与交付能力，组成同一条工作链路。" />
           <div className="skill-rails" data-reveal>
             {skillRows.map((row, rowIndex) => (
@@ -652,7 +462,7 @@ export default function HomePage() {
           <p className="skills-note">稳定、善沟通、有推进节奏；建筑训练带来的结构意识和审美判断，让我习惯同时看见产品的逻辑与体验。</p>
         </section>
 
-        <section className="contact section" id="contact" data-motion-section data-nav-section data-snap-section>
+        <section className="contact section" id="contact" data-motion-section data-nav-section>
           <ChapterHead no="05" label="CONTACT" title="联系我" note="如果你也在把 AI 变成真正有用的产品，我们可以聊聊。" />
           <div className="contact-layout" data-reveal>
             <p>OPEN TO<br />GOOD IDEAS <span>↘</span></p>
