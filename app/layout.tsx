@@ -1,18 +1,28 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import './globals.css';
-import { SiteNav } from '@/components/SiteNav';
 
 export const metadata: Metadata = {
-  title: '个人展示网站',
-  description: '个人资料、简历与收藏链接展示'
+  title: 'pear279 · 李慧珍｜AI 产品经理',
+  description: '李慧珍的 AI 产品经理个人作品集：工作经历、产品项目、技能与联系方式。',
+  icons: { icon: '/favicon.svg' },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0b0d0c',
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN">
+      <head>
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
+      </head>
       <body>
-        <SiteNav />
-        <main className="container">{children}</main>
+        {children}
+        <Script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js" strategy="beforeInteractive" />
       </body>
     </html>
   );
