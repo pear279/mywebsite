@@ -82,6 +82,20 @@ button { color: inherit; font: inherit; }
   transition: opacity 420ms ease, transform 500ms var(--ease-out);
 }
 .corner-mark.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.corner-mark-icon {
+  display: block;
+  width: 100%;
+  height: 74%;
+  background: var(--acid);
+  -webkit-mask-image: url('/corner-mark-text-mask.png');
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-image: url('/corner-mark-text-mask.png');
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
 
 .mark { display: block; width: clamp(660px, 68vw, 980px); }
 .mark svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -600,7 +614,15 @@ footer {
   font: 8px "Courier New", monospace;
   letter-spacing: 0.09em;
 }
-footer .mark { width: 120px; }
+.footer-logo {
+  display: block;
+  width: 120px;
+  height: 40px;
+}
+.footer-mark-icon {
+  width: 100%;
+  height: 100%;
+}
 footer a { color: #fff; }
 
 @media (max-width: 1040px) {

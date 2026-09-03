@@ -43,32 +43,32 @@ const navigation = [
 ] as const;
 
 const timeline = [
-  { date: '2025.02 — 2025.12', title: 'moodseed 情绪社交', type: '产品项目', href: '#project-moodseed' },
+  { date: '2025.02 — 2025.06', title: 'moodseed 情绪社交', type: '产品项目', href: '#project-moodseed' },
   { date: '2025.11 — 至今', title: '“东方游” AI 旅游导览', type: '产品项目', href: '#project-dongfang' },
   { date: '2025.12 — 2026.04', title: 'CodeXpert 云端编码智能体', type: '实习经历', href: '#experience-codexpert' },
-  { date: '2026.02 — 2026.03', title: 'SoundLens 音象', type: '产品项目', href: '#project-soundlens' },
+  { date: '2026.02 — 2026.05', title: 'SoundLens 音象', type: '产品项目', href: '#project-soundlens' },
   { date: '2026.05 — 2026.08', title: '腾讯浏览器 · Agent 组', type: '实习经历', href: '#experience-tencent' },
 ];
 
 const projects = [
   {
-    id: 'project-moodseed', no: '01', date: '2025.02 — 2025.12', title: 'moodseed',
-    subtitle: '面向 Z 世代的 AI 情绪社交产品',
-    description: '从 107 份问卷与 6 位目标用户深访出发，独立推进用户研究、需求分析、AI 能力设计、原型与 Demo 验证，设计“情绪识别—对话引导—内容推荐”的完整服务链路。',
-    tags: ['用户研究', 'RAG', 'NLP', 'Qwen', '商业模式'], repo: 'https://github.com/pear279?tab=repositories', repoLabel: '项目仓库整理中',
+    id: 'project-moodseed', no: '01', date: '2025.02 — 2025.06', title: 'moodseed',
+    subtitle: '面向 Z 世代的 AI 情绪陪伴与记录产品',
+    description: '基于 107 份问卷与 6 位用户深访，独立推进用户研究、需求定义、CBT 知识库设计与 AI 能力接入，最终完成移动端上线并获得江苏省青年创新创业大赛（数字经济赛道）优秀奖。',
+    tags: ['用户研究', 'CBT', 'RAG', 'React', 'Cloudflare'], repo: 'https://moodseed.pages.dev/', repoLabel: '在线体验 ↗',
     tone: 'lime', visualTitle: ['MOOD', 'SEED'], keywords: ['EMOTION AI', 'LOW-DISTURBANCE', 'PERSONALIZED'],
   },
   {
-    id: 'project-dongfang', no: '02', date: '2025.11 — NOW', title: '东方游',
+    id: 'project-dongfang', no: '02', date: '2025.11 — 至今', title: '东方游',
     subtitle: '面向海外游客的个性化文旅 Agent',
-    description: '参与前端 Demo 与产品共创，基于垂直知识库和用户画像生成个性化路线与导览讲解；用 Agent Harness 组织 Multi-Agent 协作，并搭建古籍数据 ETL Pipeline。',
-    tags: ['Multi-Agent', 'Agent Harness', 'LlamaIndex', 'ETL', '地图交互'], repo: 'https://github.com/pear279/China-Stroll', repoLabel: 'GitHub ↗',
+    description: '围绕语言沟通、可信度与行程协作痛点，参与产品共创与开发落地，构建“可信景点 + 实时地图 + 共享行程 + 实用工具”的伴随式导览体验。',
+    tags: ['React', 'TypeScript', 'Hono', 'Supabase', 'MapLibre'], repo: 'https://github.com/pear279/China-Stroll', repoLabel: 'GitHub ↗',
     tone: 'blue', visualTitle: ['CHINA', 'STROLL'], keywords: ['ROUTE PLANNING', 'LOCAL KNOWLEDGE', 'TRAVEL AGENT'],
   },
   {
-    id: 'project-soundlens', no: '03', date: '2026.02 — 2026.03', title: 'SoundLens 音象',
+    id: 'project-soundlens', no: '03', date: '2026.02 — 2026.05', title: 'SoundLens 音象',
     subtitle: '为听障人士设计的实时声音感知产品',
-    description: '独立开发声音监测、波形可视化、异常提醒与停顿检测。用状态机降低误报与抖动，并从隐私和工程落地角度完成服务端写入与本地缓存兜底。',
+    description: '使用 Next.js、Web Audio API 与 Supabase 实现实时监测、异常提醒与停顿检测，并通过状态机机制降低误报与抖动，提升可用性与稳定性。',
     tags: ['Next.js', 'TypeScript', 'Web Audio API', 'Supabase', '状态机'], repo: 'https://github.com/pear279/SoundLens', repoLabel: 'GitHub ↗',
     tone: 'coral', visualTitle: ['SOUND', 'LENS'], keywords: ['REAL-TIME AUDIO', 'ACCESSIBILITY', 'PRIVACY FIRST'],
   },
@@ -341,7 +341,7 @@ export default function HomePage() {
 
   return (
     <div className="site-shell" ref={rootRef}>
-      <a className={`corner-mark ${scrolled ? 'is-visible' : ''}`} href="#home" aria-label="返回首页"><Mark compact /></a>
+      <a className={`corner-mark ${scrolled ? 'is-visible' : ''}`} href="#home" aria-label="返回首页"><span className="corner-mark-icon" aria-hidden="true" /></a>
 
       <header className="site-header">
         <button className="menu-toggle" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-controls="site-navigation">
@@ -386,8 +386,8 @@ export default function HomePage() {
               <h1>让复杂的 AI，成为自然好用的产品。</h1>
             </div>
             <div className="about-copy" data-reveal>
-              <p>你好，我是李慧珍，一名建筑学背景的 AI 产品经理。我的工作从用户洞察开始，穿过数据、模型与协作流程，最终落在真实可用的产品体验上。</p>
-              <p>熟悉 RAG、Embedding、Transformer、Multi-Agent 与 Agent Harness，也能用 SQL / Python 看清数据，用 Figma、Cursor 与前沿 LLM 快速把想法做成 Demo。</p>
+              <p>你好，我是李慧珍，一名建筑学背景的 AI 产品人。我的工作从用户洞察开始，穿过数据、模型与协作流程，最终落在真实可用的产品体验上。</p>
+              <p>我关注 AI 产品、市场与运营的交叉实践，熟悉 RAG、Embedding、Transformer、Multi-Agent、Agent Harness，也能用 SQL / Python 辅助决策，用 Figma、Cursor 与 LLM 快速验证方案。</p>
             </div>
             <nav className="about-index" aria-label="产品旅程目录" data-reveal>
               {timeline.map((item, index) => (
@@ -399,8 +399,8 @@ export default function HomePage() {
           </div>
           <div className="education" data-reveal>
             <span>EDUCATION</span>
-            <div><strong>南京大学 · C9 / 985</strong><small>建筑学硕士 · 2024—2027</small></div>
-            <div><strong>三江学院</strong><small>建筑学学士 · 2019—2024</small></div>
+            <div><strong>南京大学 · C9 / 985</strong><small>建筑学硕士 · 2024—2027（校一等/二等奖学金，优秀志愿者）</small></div>
+            <div><strong>三江学院</strong><small>建筑学学士 · 2019—2024（年级前三，一等奖学金三次）</small></div>
           </div>
         </section>
 
@@ -410,7 +410,7 @@ export default function HomePage() {
             <article className="experience-row" id="experience-tencent" data-reveal>
               <div className="experience-main">
                 <div className="experience-head"><span className="experience-no">01</span><div><h3>腾讯</h3><p>浏览器产品部 Agent 组 · 产品策划</p></div><time>2026.05 — 2026.08</time></div>
-                <ul><li>参与 9 个 P0 / P1 需求，独立跟进并创建 4 个需求单，协同设计、开发与法务推进落地。</li><li>负责翻译、通信助手与 Agent 模型评测，设计题集和标准，推动模型效果迭代。</li><li>分析短剧消费 DAU 与留存漏斗，通过 A/B 实验验证内容分发策略并优化用户观看时长。</li></ul>
+                <ul><li>参与 9 个 P0 / P1 需求，协同设计、开发与法务推进落地，覆盖 AI 信息订阅、智能填表、脚本/Skill 创建等功能方向。</li><li>负责翻译、通用助手与 Agent 模型评测，设计题集和规则，推动产品与模型效果迭代。</li><li>分析浏览器功能 DAU 与留存漏斗，基于数据优化高价值任务场景，提升用户复访率。</li></ul>
                 <div className="tag-row"><span>需求策划</span><span>模型评测</span><span>A/B 实验</span><span>内容分发</span></div>
               </div>
               <div className="experience-visual visual-violet"><span>AGENT<br />BROWSER</span><small>模型评测 · 内容策略 · 用户洞察</small></div>
@@ -418,7 +418,7 @@ export default function HomePage() {
             <article className="experience-row" id="experience-codexpert" data-reveal>
               <div className="experience-main">
                 <div className="experience-head"><span className="experience-no">02</span><div><h3>元数信息技术</h3><p>CodeXpert 云端编码智能体 · AI 产品经理</p></div><time>2025.12 — 2026.04</time></div>
-                <ul><li>参与 AI Coding Agent 从 MVP 到上线的完整推进，完成场景拆解、能力设计与测试验证。</li><li>推动“需求—代码—测试—PR”任务链路打通，提升 AI 在真实研发工作流中的可用性。</li><li>参与数据埋点方案与品牌物料设计，为功能分析、路径观察和产品转化建立基础。</li></ul>
+                <ul><li>参与 Coding Agent 从 MVP 到上线的完整推进，完成需求拆解、AI 能力设计与测试验证。</li><li>推动“需求—代码—测试—PR”任务链路打通，提升 AI 在真实研发工作流中的可用性。</li><li>参与品牌物料设计（Logo、落地页）与数据埋点方案建设，为功能分析、路径观察和转化优化建立基础。</li></ul>
                 <div className="tag-row"><span>Coding Agent</span><span>研发工作流</span><span>数据埋点</span><span>品牌设计</span></div>
               </div>
               <div className="experience-visual visual-amber"><span>CODE<br />XPERT</span><small>MVP · WORKFLOW · SHIPPING</small></div>
@@ -475,7 +475,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer><Mark compact /><p>李慧珍 · AI PRODUCT MANAGER</p><p>© 2026 NANJING, CHINA</p><a href="#home">BACK TO TOP ↑</a></footer>
+      <footer><a className="footer-logo" href="#home" aria-label="返回首页"><span className="corner-mark-icon footer-mark-icon" aria-hidden="true" /></a><p>李慧珍 · AI PRODUCT MANAGER</p><p>© 2026 NANJING, CHINA</p><a href="#home">BACK TO TOP ↑</a></footer>
     </div>
   );
 }
