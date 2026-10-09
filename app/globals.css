@@ -1566,3 +1566,6 @@ button {
  .hero .cutout-responsive .glyph-0 { margin-left: 1%; }
  .hero .cutout-responsive .glyph-3 { margin-right: 1%; }
 }
+
+/* Keep the bitmap's original scale while masking stray paper at E / R edges. */
+.cutout-tile .cutout-clean-glyph { display: block; width: 100%; height: auto; aspect-ratio: .72; }
