@@ -1551,3 +1551,18 @@ button {
  .skill-unit { padding: 12px 15px; }
 }
 @media(prefers-reduced-motion: reduce) { .skill-track { animation: none; } .skill-marquee { overflow-x: auto; mask-image: none; } .skill-group[aria-hidden="true"] { display: none; } }
+
+/* Reference-based colorful paper glyphs */
+.cutout-brand { display: flex; align-items: center; justify-content: center; gap: .5%; }
+.cutout-tile { display: block; width: 13%; flex: 0 0 13%; }
+.cutout-tile.glyph-4 { margin-left: 3%; }
+.cutout-tile img { display: block; width: 100%; height: auto; aspect-ratio: .72; object-fit: contain; }
+.hero .cutout-tile { transform-box: border-box; }
+@media (max-width: 700px) {
+ .hero .cutout-responsive { flex-wrap: wrap; gap: 6px 1%; }
+ .hero .cutout-responsive .cutout-tile { width: 23%; flex-basis: 23%; }
+ .hero .cutout-responsive .glyph-4 { margin-left: 0; }
+ .hero .cutout-responsive .glyph-4::before { content: none; }
+ .hero .cutout-responsive .glyph-0 { margin-left: 1%; }
+ .hero .cutout-responsive .glyph-3 { margin-right: 1%; }
+}
