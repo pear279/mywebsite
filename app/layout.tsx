@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { CursorRipple } from "@/components/CursorRipple";
 export const metadata: Metadata = {
   title: "pear 279 · 李慧珍 | AI 产品与创意实践",
   description:
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#101312",
+  themeColor: "#ffffff",
 };
 export default function RootLayout({
   children,
@@ -24,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>{children}<CursorRipple /></body>
     </html>
   );
 }

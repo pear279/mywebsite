@@ -1,5 +1,5 @@
 :root {
-  --paper: #f3f3ef;
+  --paper: #ffffff;
   --ink: #202622;
   --muted: #727871;
   --line: #d5d8d1;
@@ -1631,3 +1631,13 @@ button {
   .gallery-link:hover { transform: none; }
   .gallery-link .waveform i { animation: none; }
 }
+
+/* White canvas with a transient gradient ripple following the pointer. */
+body, .hero, .about, .contact { background: #fff; }
+.hero { color: var(--ink); }
+.hero-top, .hero-bottom { color: #657067; }
+.hero-caption p span { background: rgba(32,38,34,.04); }
+.hero-grain { display: none; }
+.cursor-ripples { position: fixed; inset: 0; z-index: 15; pointer-events: none; overflow: hidden; }
+.cursor-ripples i { position: absolute; width: 240px; height: 240px; border-radius: 50%; opacity: 0; background: conic-gradient(from 20deg, #8ab9ff, #dba3ed, #ffa6bd, #f6da92, #a3dfcd, #8ab9ff); -webkit-mask-image: radial-gradient(circle, transparent 35%, #000 44%, #000 47%, transparent 59%); mask-image: radial-gradient(circle, transparent 35%, #000 44%, #000 47%, transparent 59%); }
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .cursor-ripples { display: none; } }
