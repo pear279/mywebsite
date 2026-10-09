@@ -5,15 +5,13 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Brand } from "@/components/Brand";
-import { ProjectVisual } from "@/components/ProjectVisual";
+import { WorkGallery } from "@/components/WorkGallery";
 import { Skills } from "@/components/Skills";
 import { Koala } from "@/components/Koala";
-import { projects, asset } from "@/data/projects";
+import { asset } from "@/data/projects";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
-const filters = ["全部", "AI 产品", "交互实验"] as const;
 export default function Home() {
   const root = useRef<HTMLDivElement>(null);
-  const [filter, setFilter] = useState<string>("全部");
   const [menu, setMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -76,9 +74,6 @@ export default function Home() {
     },
     { scope: root },
   );
-  useEffect(() => {
-    ScrollTrigger.refresh();
-  }, [filter]);
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText("3500788359@qq.com");
@@ -164,61 +159,7 @@ export default function Home() {
             认识我 <span>↗</span>
           </a>
         </section>
-        <section className="work wrap" id="work">
-          <div className="section-heading" data-reveal>
-            <div>
-              <span className="eyebrow">SELECTED WORK / 2025—2026</span>
-              <h2>想法，有了形状。</h2>
-            </div>
-            <div className="filters" aria-label="作品筛选">
-              {filters.map((f) => (
-                <button
-                  key={f}
-                  aria-pressed={filter === f}
-                  onClick={() => setFilter(f)}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="project-grid">
-            {projects
-              .filter((p) => filter === "全部" || p.category === filter)
-              .map((p, i) => (
-                <article
-                  className={`project-card project-${p.slug}`}
-                  key={p.slug}
-                >
-                  <Link
-                    className="project-cover"
-                    href={`/projects/${p.slug}`}
-                    aria-label={`查看 ${p.title} 项目案例`}
-                  >
-                    <ProjectVisual project={p} />
-                    <span className="cover-arrow">↗</span>
-                  </Link>
-                  <div className="project-summary">
-                    <div>
-                      <span className="eyebrow">
-                        {p.category} / {p.year}
-                      </span>
-                      <h3>
-                        <Link href={`/projects/${p.slug}`}>
-                          {p.title}
-                          <span>{p.chinese}</span>
-                        </Link>
-                      </h3>
-                      <p>{p.tagline}</p><p className="project-depth">{p.decisions[0].title} · {p.decisions[1].title}</p><Link className="case-entry" href={`/projects/${p.slug}`}>研究、取舍与实现 ↗</Link>
-                    </div>
-                    <span className="project-index">
-                      0{projects.indexOf(p) + 1}
-                    </span>
-                  </div>
-                </article>
-              ))}
-          </div>
-        </section>
+        <WorkGallery />
         <section className="experience wrap" id="experience">
           <div className="section-heading" data-reveal>
             <div>
