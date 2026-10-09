@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import "./editorial.css";
 export const metadata: Metadata = {
   title: "pear 279 · 李慧珍 | AI 产品与创意实践",
   description:
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#eae8e3",
+  themeColor: "#101312",
 };
 export default function RootLayout({
   children,

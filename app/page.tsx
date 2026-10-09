@@ -14,7 +14,6 @@ const filters = ["全部", "AI 产品", "交互实验"] as const;
 export default function Home() {
   const root = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<string>("全部");
-  const [activeSection, setActiveSection] = useState("home");
   const [menu, setMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -24,6 +23,30 @@ export default function Home() {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         gsap.timeline().from(".hero .brand-tile", { opacity: 0, y: 35, scale: .9, duration: .8, stagger: .075, ease: "power3.out" }).from(".hero-caption", { opacity: 0, y: 12, duration: .65 }, "-.35");
+        gsap.to(".hero-signature", {
+          y: -45,
+          opacity: 0,
+          scrollTrigger: {
+            trigger: ".hero",
+            start: "top top",
+            end: "bottom 25%",
+            scrub: 1,
+          },
+        });
+        gsap.fromTo(
+          ".fixed-brand",
+          { autoAlpha: 0, y: -8 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.25,
+            scrollTrigger: {
+              trigger: ".hero",
+              start: "bottom 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) =>
           gsap.from(el, {
             y: 30,
@@ -34,6 +57,21 @@ export default function Home() {
           }),
         );
       });
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.fromTo(
+          ".fixed-brand",
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: 0,
+            scrollTrigger: {
+              trigger: ".hero",
+              start: "bottom 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      });
       return () => mm.revert();
     },
     { scope: root },
@@ -41,13 +79,6 @@ export default function Home() {
   useEffect(() => {
     ScrollTrigger.refresh();
   }, [filter]);
-  useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { if (entry.isIntersecting) setActiveSection(entry.target.id); });
-    }, { rootMargin: "-15% 0px -65% 0px" });
-    document.querySelectorAll("main > section[id]").forEach(section => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText("3500788359@qq.com");
@@ -79,7 +110,7 @@ export default function Home() {
             ["关于", "#about"],
             ["联系", "#contact"],
           ].map(([label, href]) => (
-            <a key={href} href={href} aria-current={activeSection === href.slice(1) ? "location" : undefined} onClick={() => setMenu(false)}>
+            <a key={href} href={href} onClick={() => setMenu(false)}>
               {label}
             </a>
           ))}
@@ -90,16 +121,28 @@ export default function Home() {
       </header>
       <main>
         <section className="hero" id="home">
-          <div className="hero-signature wrap">
-            <div className="hero-identity"><h1><Brand responsive /></h1><span className="hero-edition">LI HUIZHEN / 李慧珍 · PERSONAL SPACE</span></div>
-            <div className="hero-editorial">
-              <div className="hero-caption">
-                <span className="eyebrow">AI PRODUCT, HUMAN FIRST.</span>
-                <h2>在<span className="ink-highlight">需求与技术</span>之间，<br />把想法做成产品。</h2>
-                <p className="hero-role">AI 产品 / 市场 / 运营 / 数据</p>
-              </div>
-              <div className="hero-welcome"><span className="availability"><i />南京 · 2027 届</span><p>你好，我是李慧珍。<br />这里放着我亲手做出的产品、真实业务里的实践，还有一些关于人与技术的小小观察。</p><p>建筑学让我留意细节，AI 让我把想象变成可以使用的东西。欢迎来到我的互联网小客厅。</p><a className="text-link" href="#work">看看我的作品 <span>↘</span></a></div>
+          <div className="hero-top">
+            <span>LI HUIZHEN / 李慧珍</span>
+            <span>NANJING · CLASS OF 2027</span>
+          </div>
+          <div className="hero-signature">
+            <h1>
+              <Brand responsive />
+            </h1>
+            <div className="hero-caption">
+              <span className="role-label">AI PRODUCT, HUMAN FIRST.</span>
+              <p>
+                <span>研究真实需求</span>
+                <span>把想法做成产品</span>
+              </p>
             </div>
+          </div>
+          <div className="hero-bottom">
+            <span>AI 产品 / 市场 / 运营 / 数据</span>
+            <a href="#work">
+              探索我的作品 <span>↓</span>
+            </a>
+            <span>CURIOUS BY NATURE.</span>
           </div>
           <div className="hero-grain" aria-hidden="true" />
         </section>
