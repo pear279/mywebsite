@@ -1716,7 +1716,7 @@ body, .hero, .about, .contact { background: #fff; }
 .campus-gallery small { display: block; margin-top: 8px; }
 .photo-dialog { padding: 32px; border: 0; max-width: 900px; width: 88vw; border-radius: 12px; background: white; }
 .photo-dialog::backdrop { background: #202622b0; }
-.photo-dialog img { max-height: 65vh; margin: 0 auto; object-fit: contain; }
+.photo-dialog img { width: 100%; height: 60vh; max-height: 65vh; margin: 0 auto; object-fit: contain; }
 .photo-dialog > p { font-size: 13px; margin: 18px 0; }
 .photo-dialog > div { display: flex; justify-content: flex-end; gap: 10px; }
 .photo-dialog button { background: #f1f3ef; border-radius: 50%; width: 36px; height: 36px; }

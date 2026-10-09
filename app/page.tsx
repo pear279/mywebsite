@@ -247,9 +247,7 @@ export default function Home() {
           <div className="contact-bottom">
             <div>
               <p>
-                期待 AI 产品机会，
-                <br />
-                也欢迎市场、运营与数据方向的交流。
+                期待 AI 产品机会，也欢迎交流。
               </p>
               <a className="email-link" href="mailto:3500788359@qq.com">
                 3500788359@qq.com ↗
