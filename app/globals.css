@@ -1641,3 +1641,5 @@ body, .hero, .about, .contact { background: #fff; }
 .cursor-ripples { position: fixed; inset: 0; z-index: 15; pointer-events: none; overflow: hidden; }
 .cursor-ripples i { position: absolute; width: 240px; height: 240px; border-radius: 50%; opacity: 0; background: conic-gradient(from 20deg, #8ab9ff, #dba3ed, #ffa6bd, #f6da92, #a3dfcd, #8ab9ff); -webkit-mask-image: radial-gradient(circle, transparent 35%, #000 44%, #000 47%, transparent 59%); mask-image: radial-gradient(circle, transparent 35%, #000 44%, #000 47%, transparent 59%); }
 @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) { .cursor-ripples { display: none; } }
+
+.hero-bottom a { color: var(--ink); }
