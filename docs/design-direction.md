@@ -25,3 +25,6 @@ Resume controls employment dates where documents differ: Tencent 2026.05–2026.
 
 ## 彩色剪纸字标
 依据用户提供的彩色纸片参考，图像编辑工具组合 A、R、2、7、9 并补绘参考表缺少的 P、E。七个字符拆为透明 WebP，电脑横排，手机四字母与三数字分行；角落与页尾使用同一组素材。
+
+## 2026-10-10 · Digital living room
+Reference: https://iamrob.in/?ref=minimal.gallery . Borrow warm paper (#eae8e3), near-black text (#242321), compact mono navigation, editorial split introduction, and softly edged paper cards. Preserve the owner's colorful cutout identity, Chinese content, case depth and original koala assets. The hero now introduces the person and product perspective with a welcome note. The same warm-neutral palette applies to home and case pages; restrained clay highlights replace green UI accents. Navigation reflects the section being read. Mobile uses a single column and a compact horizontal identity.
