@@ -173,10 +173,6 @@ function Mark({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function HeroArtwork() {
-  return <span className="hero-artwork" role="img" aria-label="Pear 279 手写线稿" />;
-}
-
 function ChapterHead({ no, label, title, note }: { no: string; label: string; title: string; note: string }) {
   return (
     <div className="chapter-head" data-reveal>
@@ -296,9 +292,23 @@ export default function HomePage() {
     });
 
     mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const widePaths = gsap.utils.toArray<SVGPathElement>('.hero .mark-svg--wide .mark-stroke');
+      const stackedPaths = gsap.utils.toArray<SVGPathElement>('.hero .mark-svg--stacked .mark-stroke');
+      const heroPaths = [...widePaths, ...stackedPaths];
+      const wideNotes = gsap.utils.toArray<SVGGElement | SVGCircleElement>('.hero .mark-svg--wide .mark-note, .hero .mark-svg--wide .mark-note-dot');
+      const stackedNotes = gsap.utils.toArray<SVGGElement | SVGCircleElement>('.hero .mark-svg--stacked .mark-note, .hero .mark-svg--stacked .mark-note-dot');
+      heroPaths.forEach((path) => {
+        const length = path.getTotalLength();
+        gsap.set(path, { autoAlpha: 0, strokeDasharray: length, strokeDashoffset: length });
+      });
+
       const intro = gsap.timeline({ defaults: { ease: 'power4.out' } })
         .addLabel('signature')
-        .from('.hero-artwork', { autoAlpha: 0, y: 12, scale: 0.975, duration: 1.05 }, 'signature')
+        .to(widePaths, { autoAlpha: 1, strokeDashoffset: 0, duration: 1.18, stagger: 0.065, ease: 'power2.inOut' }, 'signature')
+        .to(stackedPaths, { autoAlpha: 1, strokeDashoffset: 0, duration: 1.18, stagger: 0.065, ease: 'power2.inOut' }, 'signature')
+        .set(heroPaths, { strokeDasharray: 'none', strokeDashoffset: 0 })
+        .from(wideNotes, { autoAlpha: 0, scale: 0, transformOrigin: 'center', duration: 0.34, stagger: 0.035 }, '-=.3')
+        .from(stackedNotes, { autoAlpha: 0, scale: 0, transformOrigin: 'center', duration: 0.34, stagger: 0.035 }, '<')
         .from('.hero-role > *', { autoAlpha: 0, y: 14, duration: 0.52, stagger: 0.075 }, '-=.24')
         .from('.scroll-cue', { autoAlpha: 0, y: 10, duration: 0.5 }, '-=.26');
 
@@ -329,7 +339,8 @@ export default function HomePage() {
 
     mm.add('(prefers-reduced-motion: reduce)', () => {
       gsap.set('[data-reveal]', { autoAlpha: 1, y: 0 });
-      gsap.set('.hero-artwork, .hero-role, .scroll-cue', { autoAlpha: 1, x: 0, y: 0 });
+      gsap.set('.hero .mark-stroke', { autoAlpha: 1, strokeDasharray: 'none', strokeDashoffset: 0 });
+      gsap.set('.hero .mark-note, .hero .mark-note-dot, .hero-role, .scroll-cue', { autoAlpha: 1, x: 0, y: 0 });
     });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
@@ -362,7 +373,7 @@ export default function HomePage() {
             <span className="hero-haze hero-haze--far" aria-hidden="true" />
             <span className="hero-haze hero-haze--near" aria-hidden="true" />
             <div className="hero-mark">
-              <div className="hero-mark-inner"><HeroArtwork />
+              <div className="hero-mark-inner"><Mark />
                 <div className="hero-role">
                   <span>AI PRODUCT · HUMAN FIRST <i aria-hidden="true">●</i></span>
                   <div><strong>AI 产品经理</strong><em>把复杂 AI 变成自然体验</em></div>

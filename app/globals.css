@@ -207,16 +207,6 @@ button { color: inherit; font: inherit; }
   will-change: opacity;
 }
 .hero-mark-inner { position: relative; will-change: transform; }
-.hero-artwork {
-  display: block;
-  width: clamp(760px, 72vw, 1060px);
-  aspect-ratio: 1672 / 500;
-  background-image: url('/pear-279-handdrawn.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% auto;
-  will-change: transform, opacity;
-}
 .hero-role {
   position: absolute;
   top: calc(100% + clamp(16px, 1.7vw, 25px));
@@ -671,7 +661,12 @@ footer a { color: #fff; }
   .corner-mark { top: 12px; left: 12px; width: 122px; height: 42px; }
   .hero { min-height: 560px; }
   .hero-mark { top: 38.5%; }
-  .hero-artwork { width: min(100vw, 460px); }
+  .hero .mark { width: min(78vw, 340px); }
+  .hero .mark-svg--wide { display: none; }
+  .hero .mark-svg--stacked { display: block !important; }
+  .hero .mark-svg--stacked { transform: rotate(0.8deg); transform-origin: center; }
+  .hero .mark-stroke { stroke-width: 5.2px; }
+  .hero .mark-note text { font-size: 9px; }
   .hero-haze--far { top: 56%; width: 118vw; opacity: 0.09; filter: blur(82px); }
   .hero-haze--near { top: 39%; width: 84vw; opacity: 0.13; filter: blur(66px); }
   .hero-role { top: calc(100% + 14px); left: 50%; max-width: 92vw; transform: translateX(-50%); }

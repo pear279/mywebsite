@@ -70,12 +70,13 @@ Base scale: 4, 8, 12, 16, 24, 32, 48, 64, 96.
 
 ### Signature mark
 
-- The Hero uses the supplied transparent raster artwork `/pear-279-handdrawn.png` as its sole center mark. Its distressed white fill, sketch contours, and alpha channel are part of the artwork and must remain unmodified.
-- Keep `P–e` and `7–9` optically separate: no connector may cut through the counters or cross from one glyph into the next. Preserve the irregular silhouettes and distress elsewhere.
-- The source contains generous transparent space above and below the lettering. Present it as a centered CSS background inside a `1672:500` visual window rather than letting the full `1672:941` file box determine the role-label position.
-- Desktop width is approximately `72vw` with a `1060px` ceiling; mobile uses up to the viewport width with a `460px` ceiling. This keeps the irregular mark prominent without clipping its outer strokes.
-- Reveal the raster mark as one object with a restrained opacity/scale transition. Path-drawing motion is no longer appropriate because the Hero artwork is not vector geometry.
-- The fixed corner mark and footer remain the existing compact acid SVG on a dark backing. They are navigation-scale identifiers and are intentionally not replaced by the detailed raster artwork.
+- Draw `pear 279` as seven original open SVG paths with round caps and joins. Each glyph is one continuous gesture that loops back through itself, leaves an overshoot, or crosses its earlier trajectory; letters and digits never use a font-derived outline.
+- Keep a single-space optical gap between `r` and `2`; the same path geometry is reused in the Hero, fixed corner mark, and footer.
+- Desktop presents the mark as a wide lockup at roughly `68vw` with a `980px` ceiling. Mobile reuses those exact paths in a second SVG viewport and translates the number group beneath the word, preserving identity while changing art direction.
+- Rotate glyphs independently by roughly `2—4deg`, vary their strokes between `4—6px`, and apply a subtle static turbulence displacement. This creates a rough marker edge without runtime randomness, frame-to-frame vibration, or accessibility cost.
+- Animate the Hero by measuring each path's real length at runtime and revealing its stroke sequentially. Do not use normalized CSS dash values because browsers may interpret them as pixels and leave broken strokes.
+- Place twelve tiny numbered dots and several unlabelled micro-dots asymmetrically across glyph interiors, edges, and gaps. They arrive after the outline and remain secondary to legibility; no random runtime placement is used, so desktop and mobile compositions stay controlled.
+- The compact version uses the acid accent on a dark blurred backing, preserving contrast over both light and dark chapters.
 
 ### Hero atmosphere and role label
 
@@ -155,5 +156,3 @@ Base scale: 4, 8, 12, 16, 24, 32, 48, 64, 96.
 - Verified the Hero at 1440×900, 390×844, and 360×640, including one-wheel chapter travel, mobile navigation, internal anchor arrival, ClickSpark canvas, resume response, reduced-motion styles, and a clean browser console.
 - Replaced the thin monoline signature with seven compound bubble-outline paths, retained the existing path-length entrance, and added controlled `1—7` dot annotations inside the hollow characters.
 - Superseded the geometric bubble draft with seven hand-built open scribble paths, character-level stroke variation, static SVG displacement, irregular rotations, multiple self-intersections, a radial studio-light background, and twelve scattered numbered dots.
-- Replaced only the Hero's hand-built SVG lettering with the user-supplied transparent PNG, preserving the atmospheric field, identity label, pointer parallax, staged exit, compact corner mark, and footer mark.
-- Removed the two noisy connector strokes crossing `P–e` and `7–9`, then restored the edited asset to genuine RGBA transparency without changing its dimensions or distressed surface treatment.
