@@ -16,3 +16,9 @@ Canvas: #101312 hero, #f3f3ef content, #193e32 accent for actions. Type: origina
 
 ## Content authority
 Resume controls employment dates where documents differ: Tencent 2026.05–2026.08; CodeXpert 2025.12–2026.04. Resume and portfolio control research counts. No invented conversion uplift or impact metrics. Source PDFs remain local; only selected public assets and resume are published. Internal review URLs and raw evaluation screenshots are excluded.
+
+## 2026-10-09 批注修订
+- pear 279 使用黑色重衬线、错位网格纸、剪贴边缘与磨损印刷纹理；宽屏横排，手机分为两行。
+- 关于照片采用 materials/生活照.jpg；能力以图标与文字组成两条连续滚动带，悬停暂停、减少动态设置下静止。
+- 联系方式使用高对比卡片；考拉展示尺寸翻倍，随七个章节切换动作，主动互动结束后恢复章节动作。
+- 四个项目增加研究、体验路径、实现边界与下一步验证，研究数量不等同于上线效果。

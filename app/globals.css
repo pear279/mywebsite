@@ -1504,3 +1504,50 @@ button {
     position: fixed;
   }
 }
+
+/* Paper-cut identity and chapter companions */
+.collage-brand svg { overflow: visible; }
+.fixed-brand { mix-blend-mode: normal; }
+.hero-signature { top: 30%; }
+.hero .brand-tile { transform-box: fill-box; transform-origin: center; }
+.hero-caption { margin-top: 30px; }
+.about-photo img { aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 55%; }
+.skill-marquees { margin: 32px 0; display: grid; gap: 12px; max-width: 100%; }
+.skill-marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.skill-track { display: flex; width: max-content; animation: skill-drift 30s linear infinite; }
+.row-1 .skill-track { animation-direction: reverse; animation-duration: 34s; }
+.skill-group { display: flex; gap: 12px; padding-right: 12px; }
+.skill-unit { display: flex; align-items: center; gap: 12px; padding: 13px 18px; border: 1px solid #bec8b7; background: #f5f6ee; border-radius: 5px; white-space: nowrap; font-size: 14px; }
+.skill-unit svg { width: 26px; height: 26px; color: #496443; }
+.skill-marquees:hover .skill-track { animation-play-state: paused; }
+@keyframes skill-drift { to { transform: translateX(-50%); } }
+.about-copy { min-width: 0; }
+.project-depth { font-size: 13px; color: #687267; padding-top: 10px; }
+.case-entry { display: inline-block; font-size: 13px; margin-top: 15px; border-bottom: 1px solid currentColor; padding-bottom: 4px; }
+.contact-bottom { padding: 32px; background: #e7ebdf; border: 1px solid #ccd5c3; gap: 35px; border-radius: 6px; }
+.email-link { font-size: clamp(20px, 2.7vw, 35px); font-weight: 600; }
+.copy-email { padding: 12px 16px; border: 1px solid #64735b; margin-top: 12px; border-radius: 4px; }
+.contact-social { gap: 12px; min-width: 240px; }
+.contact-social a { display: flex; justify-content: space-between; padding: 17px 22px; background: #28392d; color: #f1f4e9; font-size: 17px; border-radius: 4px; }
+.contact-social a:hover { background: #466047; }
+.koala-toggle { width: 150px; height: 184px; }
+.koala-toggle img { width: 150px; height: 160px; transition: transform .4s ease; }
+.koala-toggle:hover img { transform: translateY(-7px) rotate(-3deg); }
+.koala-panel { position: absolute; bottom: calc(100% + 10px); right: 0; }
+.case-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
+.case-detail-grid article { border-top: 1px solid var(--line); padding: 24px 0; }
+.case-detail-grid h3 { font-size: 20px; margin: 10px 0 15px; }
+.case-process { display: flex; flex-wrap: wrap; gap: 9px; margin: 25px 0; }
+.case-process span { padding: 12px 17px; background: #e7ebdf; border-radius: 4px; font-size: 14px; }
+@media(max-width: 700px) {
+ .hero-signature { top: 25%; }
+ .contact-bottom { padding: 22px; }
+ .contact-social { width: 100%; }
+ .koala-toggle { width: 124px; height: 152px; }
+ .koala-toggle img { width: 124px; height: 130px; }
+ .koala-panel { width: min(270px, calc(100vw - 35px)); }
+ .contact { padding-bottom: 170px; }
+ .case-detail-grid { grid-template-columns: 1fr; gap: 0; }
+ .skill-unit { padding: 12px 15px; }
+}
+@media(prefers-reduced-motion: reduce) { .skill-track { animation: none; } .skill-marquee { overflow-x: auto; mask-image: none; } .skill-group[aria-hidden="true"] { display: none; } }

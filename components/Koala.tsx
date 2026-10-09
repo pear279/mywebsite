@@ -4,17 +4,32 @@ import { asset } from "@/data/projects";
 export function Koala() {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("idle");
+  const chapterAction = useRef("greet");
+  const manual = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   const react = (next: string) => {
     clearTimeout(timer.current);
+    manual.current = true;
     setAction(next);
-    timer.current = setTimeout(() => setAction("idle"), 4000);
+    timer.current = setTimeout(() => { manual.current = false; setAction(chapterAction.current); }, 4000);
   };
-  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    const actions: Record<string, string> = { home: "greet", intro: "wait", work: "think", experience: "work", practice: "celebrate", about: "ball", contact: "eat" };
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const sections = Array.from(document.querySelectorAll<HTMLElement>("main > section[id]"));
+      const section = sections.find(el => { const r = el.getBoundingClientRect(); return r.top <= innerHeight * .5 && r.bottom > innerHeight * .5; });
+      if (section) { chapterAction.current = actions[section.id] || "idle"; if (!manual.current) setAction(chapterAction.current); }
+    };
+    const scroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update(); window.addEventListener("scroll", scroll, { passive: true }); window.addEventListener("resize", scroll);
+    return () => { clearTimeout(timer.current); cancelAnimationFrame(frame); window.removeEventListener("scroll", scroll); window.removeEventListener("resize", scroll); };
+  }, []);
   return (
     <aside
       className={`koala-companion ${open ? "is-open" : ""}`}
-      aria-label="考拉小伙伴"
+      aria-label="考拉小伙伴" data-action={action}
     >
       {open && (
         <div className="koala-panel">

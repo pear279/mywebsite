@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Brand } from "@/components/Brand";
 import { ProjectVisual } from "@/components/ProjectVisual";
+import { Skills } from "@/components/Skills";
 import { Koala } from "@/components/Koala";
 import { projects, asset } from "@/data/projects";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -21,21 +22,7 @@ export default function Home() {
     () => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const paths = gsap.utils.toArray<SVGPathElement>(".hero .brand-letter");
-        paths.forEach((path) => {
-          const length = path.getTotalLength();
-          gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-        });
-        gsap
-          .timeline()
-          .to(paths, {
-            strokeDashoffset: 0,
-            duration: 1.25,
-            stagger: (index) => (index % 7) * 0.08,
-            ease: "power2.inOut",
-          })
-          .set(paths, { strokeDasharray: "none" })
-          .from(".hero-caption", { opacity: 0, y: 12, duration: 0.65 }, "-.35");
+        gsap.timeline().from(".hero .brand-tile", { opacity: 0, y: 35, scale: .9, duration: .8, stagger: .075, ease: "power3.out" }).from(".hero-caption", { opacity: 0, y: 12, duration: .65 }, "-.35");
         gsap.to(".hero-signature", {
           y: -45,
           opacity: 0,
@@ -159,7 +146,7 @@ export default function Home() {
           </div>
           <div className="hero-grain" aria-hidden="true" />
         </section>
-        <section className="intro wrap" data-reveal>
+        <section className="intro wrap" id="intro" data-reveal>
           <span className="eyebrow">A LITTLE ABOUT MY WAY</span>
           <h2>
             从人的感受出发，
@@ -222,7 +209,7 @@ export default function Home() {
                           <span>{p.chinese}</span>
                         </Link>
                       </h3>
-                      <p>{p.tagline}</p>
+                      <p>{p.tagline}</p><p className="project-depth">{p.decisions[0].title} · {p.decisions[1].title}</p><Link className="case-entry" href={`/projects/${p.slug}`}>研究、取舍与实现 ↗</Link>
                     </div>
                     <span className="project-index">
                       0{projects.indexOf(p) + 1}
@@ -394,7 +381,7 @@ export default function Home() {
           <div className="wrap about-grid">
             <div className="about-photo" data-reveal>
               <img
-                src={asset("/media/profile-candid.webp")}
+                src={asset("/media/life-photo.webp")}
                 alt="李慧珍的个人照片"
                 loading="lazy"
               />
@@ -425,16 +412,7 @@ export default function Home() {
                   <span>2019.09 — 2024.06</span>
                 </p>
               </div>
-              <div className="skill-list">
-                <span>用户访谈</span>
-                <span>PRD / 原型</span>
-                <span>Agent / RAG</span>
-                <span>模型评测</span>
-                <span>SQL / Python</span>
-                <span>Figma</span>
-                <span>AI 辅助开发</span>
-                <span>项目协作</span>
-              </div>
+              <Skills />
               <a
                 className="text-link"
                 href={asset("/resume.pdf")}
