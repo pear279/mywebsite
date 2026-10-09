@@ -1,492 +1,500 @@
-'use client';
-
-import { useEffect, useId, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-import ClickSpark from '@/components/ClickSpark';
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
-
-type LenisInstance = {
-  scroll: number;
-  raf: (time: number) => void;
-  on: (event: 'scroll', callback: () => void) => void;
-  off: (event: 'scroll', callback: () => void) => void;
-  scrollTo: (target: number | string | HTMLElement, options?: {
-    duration?: number;
-    easing?: (value: number) => number;
-    force?: boolean;
-    immediate?: boolean;
-    offset?: number;
-    onComplete?: () => void;
-  }) => void;
-  destroy: () => void;
-};
-
-type LenisConstructor = new (options?: {
-  lerp?: number;
-  smoothWheel?: boolean;
-  syncTouch?: boolean;
-  wheelMultiplier?: number;
-  touchMultiplier?: number;
-  anchors?: boolean;
-}) => LenisInstance;
-
-const navigation = [
-  ['首页', '#home'],
-  ['关于我', '#about'],
-  ['工作经历', '#experience'],
-  ['项目作品', '#projects'],
-  ['技能特长', '#skills'],
-  ['联系我', '#contact'],
-] as const;
-
-const timeline = [
-  { date: '2025.02 — 2025.06', title: 'moodseed 情绪社交', type: '产品项目', href: '#project-moodseed' },
-  { date: '2025.11 — 至今', title: '“东方游” AI 旅游导览', type: '产品项目', href: '#project-dongfang' },
-  { date: '2025.12 — 2026.04', title: 'CodeXpert 云端编码智能体', type: '实习经历', href: '#experience-codexpert' },
-  { date: '2026.02 — 2026.05', title: 'SoundLens 音象', type: '产品项目', href: '#project-soundlens' },
-  { date: '2026.05 — 2026.08', title: '腾讯浏览器 · Agent 组', type: '实习经历', href: '#experience-tencent' },
-];
-
-const projects = [
-  {
-    id: 'project-moodseed', no: '01', date: '2025.02 — 2025.06', title: 'moodseed',
-    subtitle: '面向 Z 世代的 AI 情绪陪伴与记录产品',
-    description: '基于 107 份问卷与 6 位用户深访，独立推进用户研究、需求定义、CBT 知识库设计与 AI 能力接入，最终完成移动端上线并获得江苏省青年创新创业大赛（数字经济赛道）优秀奖。',
-    tags: ['用户研究', 'CBT', 'RAG', 'React', 'Cloudflare'], repo: 'https://moodseed.pages.dev/', repoLabel: '在线体验 ↗',
-    tone: 'lime', visualTitle: ['MOOD', 'SEED'], keywords: ['EMOTION AI', 'LOW-DISTURBANCE', 'PERSONALIZED'],
-  },
-  {
-    id: 'project-dongfang', no: '02', date: '2025.11 — 至今', title: '东方游',
-    subtitle: '面向海外游客的个性化文旅 Agent',
-    description: '围绕语言沟通、可信度与行程协作痛点，参与产品共创与开发落地，构建“可信景点 + 实时地图 + 共享行程 + 实用工具”的伴随式导览体验。',
-    tags: ['React', 'TypeScript', 'Hono', 'Supabase', 'MapLibre'], repo: 'https://github.com/pear279/China-Stroll', repoLabel: 'GitHub ↗',
-    tone: 'blue', visualTitle: ['CHINA', 'STROLL'], keywords: ['ROUTE PLANNING', 'LOCAL KNOWLEDGE', 'TRAVEL AGENT'],
-  },
-  {
-    id: 'project-soundlens', no: '03', date: '2026.02 — 2026.05', title: 'SoundLens 音象',
-    subtitle: '为听障人士设计的实时声音感知产品',
-    description: '使用 Next.js、Web Audio API 与 Supabase 实现实时监测、异常提醒与停顿检测，并通过状态机机制降低误报与抖动，提升可用性与稳定性。',
-    tags: ['Next.js', 'TypeScript', 'Web Audio API', 'Supabase', '状态机'], repo: 'https://github.com/pear279/SoundLens', repoLabel: 'GitHub ↗',
-    tone: 'coral', visualTitle: ['SOUND', 'LENS'], keywords: ['REAL-TIME AUDIO', 'ACCESSIBILITY', 'PRIVACY FIRST'],
-  },
-];
-
-const skillRows = [
-  [
-    { title: '用户研究', note: '从访谈与行为里找到真实问题', tone: 'lime', size: 'wide' },
-    { title: '需求分析', note: '把模糊诉求压缩成清晰决策', tone: 'paper', size: 'standard' },
-    { title: 'PRD / 原型', note: '定义信息、状态与产品边界', tone: 'violet', size: 'wide' },
-    { title: '模型评测', note: '题集、标准与迭代闭环', tone: 'dark', size: 'standard' },
-    { title: '产品策略', note: '让用户价值与业务目标相遇', tone: 'blue', size: 'wide' },
-    { title: '跨团队推进', note: '设计 × 开发 × 法务 × 业务', tone: 'amber', size: 'standard' },
-  ],
-  [
-    { title: 'RAG', note: '检索、召回与知识可信度', tone: 'coral', size: 'standard' },
-    { title: 'Multi-Agent', note: '复杂任务的角色与协作设计', tone: 'blue', size: 'wide' },
-    { title: 'Agent Harness', note: '让智能体在工作流里可靠行动', tone: 'paper', size: 'wide' },
-    { title: 'SQL / Python', note: '从数据中识别问题与机会', tone: 'lime', size: 'standard' },
-    { title: '数据埋点', note: '指标、漏斗与 A/B 实验', tone: 'amber', size: 'wide' },
-    { title: 'Figma + Vibe Coding', note: '快速把想法变成可验证 Demo', tone: 'violet', size: 'wide' },
-  ],
-];
-
-function MarkGeometry({ stacked = false, dots = true, wobbleId }: { stacked?: boolean; dots?: boolean; wobbleId: string }) {
-  const numberTransform = stacked ? 'translate(-502 165)' : undefined;
-
-  return (
-    <>
-      <g className="mark-lines mark-word" fill="none" stroke="#ffffff" filter={`url(#${wobbleId})`}>
-        <path className="mark-stroke mark-stroke--p" transform="rotate(-3 116 140)" d="M60 217C52 179 55 105 63 70C68 51 80 55 82 77C84 96 72 122 78 148C84 174 119 185 150 169C177 155 182 122 164 101C143 78 102 82 83 105C66 127 76 155 102 160C127 166 154 151 157 130C160 110 142 101 126 107C108 113 99 128 103 141C108 155 125 157 138 148C151 140 154 126 148 119C142 111 132 116 127 125L121 139" />
-        <path className="mark-stroke mark-stroke--e" transform="rotate(2 253 143)" d="M202 143C203 104 235 79 270 91C299 101 307 126 291 143C276 159 239 152 218 140C239 137 283 137 300 153C314 166 298 188 277 197C249 209 214 191 203 164C194 140 211 112 238 105C263 99 282 112 280 128C278 144 258 150 243 141C229 133 231 118 242 112C254 106 267 113 266 125C265 135 253 139 247 133" />
-        <path className="mark-stroke mark-stroke--a" transform="rotate(-4 375 140)" d="M333 174C314 157 313 125 330 103C349 79 385 82 405 102C426 124 421 160 400 177C381 193 346 188 332 165C321 146 329 120 350 109C370 98 395 106 399 126C403 145 386 161 369 158C351 155 344 137 353 124C362 112 380 113 387 126C394 139 384 151 374 147C362 143 364 132 371 128C383 121 402 136 414 159C424 176 431 187 439 181" />
-        <path className="mark-stroke mark-stroke--r" transform="rotate(3 495 136)" d="M466 190C461 151 461 104 468 80C473 64 485 71 485 92C485 111 477 126 482 143C488 112 501 85 519 82C536 79 549 91 545 103C541 115 526 116 515 107C504 99 493 107 489 122C485 138 493 146 507 140C518 136 528 126 540 132" />
-      </g>
-      <g className="mark-lines mark-number" fill="none" stroke="#ffffff" filter={`url(#${wobbleId})`} transform={numberTransform}>
-        <path className="mark-stroke mark-stroke--two" transform="rotate(-3 640 148)" d="M584 123C588 88 619 71 652 82C687 94 699 123 681 149C665 171 630 184 607 201C632 197 674 191 694 200C707 206 700 220 687 222C657 227 612 226 590 219C576 214 578 201 590 190C610 171 654 157 670 137C681 123 670 104 652 101C632 98 612 109 607 127C602 143 578 142 584 123C586 116 590 112 597 108" />
-        <path className="mark-stroke mark-stroke--seven" transform="rotate(4 794 145)" d="M724 91C759 98 813 92 846 80C857 76 863 87 854 100C831 133 817 169 787 212C779 223 763 215 769 201C790 166 817 133 834 103C803 113 765 116 737 107C719 101 713 88 724 91C744 98 780 123 814 143C827 151 838 145 841 133" />
-        <path className="mark-stroke mark-stroke--nine" transform="rotate(-2 912 148)" d="M900 173C873 166 857 139 865 110C874 78 908 68 936 83C963 98 968 132 954 163C942 190 923 214 899 224C878 232 859 218 864 201C868 188 884 188 892 198C900 209 914 204 923 190C937 168 943 137 934 114C927 96 904 93 892 106C879 119 884 141 900 148C917 156 934 143 934 127C934 111 921 104 909 110C897 116 896 130 906 136C916 143 930 137 938 126C946 115 952 106 959 110" />
-      </g>
-      {dots && (
-        <g className="mark-notes" aria-hidden="true" focusable="false">
-          <g className="mark-word-notes">
-            <g className="mark-note"><circle cx="91" cy="93" r="3.2" /><text x="99" y="86">1</text></g>
-            <g className="mark-note"><circle cx="139" cy="128" r="2.4" /><text x="146" y="120">2</text></g>
-            <g className="mark-note"><circle cx="184" cy="171" r="3" /><text x="192" y="164">3</text></g>
-            <g className="mark-note"><circle cx="248" cy="101" r="2.6" /><text x="256" y="94">4</text></g>
-            <g className="mark-note"><circle cx="278" cy="176" r="3.1" /><text x="286" y="168">5</text></g>
-            <g className="mark-note"><circle cx="346" cy="151" r="2.3" /><text x="354" y="144">6</text></g>
-            <g className="mark-note"><circle cx="397" cy="103" r="3.2" /><text x="406" y="96">7</text></g>
-            <g className="mark-note"><circle cx="481" cy="133" r="2.8" /><text x="489" y="126">8</text></g>
-            <circle className="mark-note-dot" cx="111" cy="181" r="1.7" />
-            <circle className="mark-note-dot" cx="301" cy="123" r="1.4" />
-            <circle className="mark-note-dot" cx="430" cy="161" r="1.8" />
-            <circle className="mark-note-dot" cx="526" cy="91" r="1.5" />
-          </g>
-          <g className="mark-number-notes" transform={numberTransform}>
-            <g className="mark-note"><circle cx="608" cy="103" r="2.7" /><text x="616" y="96">9</text></g>
-            <g className="mark-note"><circle cx="666" cy="174" r="3.2" /><text x="675" y="167">10</text></g>
-            <g className="mark-note"><circle cx="792" cy="113" r="2.5" /><text x="800" y="106">11</text></g>
-            <g className="mark-note"><circle cx="915" cy="139" r="3.3" /><text x="924" y="132">12</text></g>
-            <circle className="mark-note-dot" cx="584" cy="157" r="1.6" />
-            <circle className="mark-note-dot" cx="704" cy="207" r="1.9" />
-            <circle className="mark-note-dot" cx="748" cy="87" r="1.5" />
-            <circle className="mark-note-dot" cx="835" cy="161" r="1.8" />
-            <circle className="mark-note-dot" cx="952" cy="188" r="1.5" />
-          </g>
-        </g>
-      )}
-    </>
-  );
-}
-
-function Mark({ compact = false }: { compact?: boolean }) {
-  const markId = useId().replace(/:/g, '');
-  const wideWobbleId = `marker-wobble-wide-${markId}`;
-  const stackedWobbleId = `marker-wobble-stacked-${markId}`;
-
-  return (
-    <span className={compact ? 'mark mark--compact' : 'mark'} aria-label="pear 279">
-      <svg className="mark-svg mark-svg--wide" viewBox="0 0 1000 260" role="img" aria-hidden="true">
-        <defs>
-          <filter id={wideWobbleId} x="-5%" y="-12%" width="110%" height="124%" colorInterpolationFilters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.055" numOctaves="2" seed="27" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="B" />
-          </filter>
-        </defs>
-        <MarkGeometry dots={!compact} wobbleId={wideWobbleId} />
-      </svg>
-      {!compact && (
-        <svg className="mark-svg mark-svg--stacked" viewBox="0 0 540 450" role="img" aria-hidden="true">
-          <defs>
-            <filter id={stackedWobbleId} x="-8%" y="-8%" width="116%" height="116%" colorInterpolationFilters="sRGB">
-              <feTurbulence type="fractalNoise" baseFrequency="0.015 0.06" numOctaves="2" seed="31" result="noise" />
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.7" xChannelSelector="R" yChannelSelector="B" />
-            </filter>
-          </defs>
-          <MarkGeometry stacked wobbleId={stackedWobbleId} />
-        </svg>
-      )}
-    </span>
-  );
-}
-
-function ChapterHead({ no, label, title, note }: { no: string; label: string; title: string; note: string }) {
-  return (
-    <div className="chapter-head" data-reveal>
-      <div className="section-kicker"><span>( {no} )</span><span>{label}</span></div>
-      <div className="chapter-title"><h2>{title}</h2><p>{note}</p></div>
-    </div>
-  );
-}
-
-function SkillCard({ card, duplicate = false }: { card: (typeof skillRows)[number][number]; duplicate?: boolean }) {
-  return (
-    <article
-      className={`skill-card skill-card--${card.tone} skill-card--${card.size}`}
-      aria-hidden={duplicate || undefined}
-      tabIndex={duplicate ? -1 : 0}
-    >
-      <small>CAPABILITY</small><h3>{card.title}</h3><p>{card.note}</p><span>↗</span>
-    </article>
-  );
-}
-
-export default function HomePage() {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('#home');
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return undefined;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const Lenis = (window as typeof window & { Lenis?: LenisConstructor }).Lenis;
-    let lenis: LenisInstance | undefined;
-    let animationFrame = 0;
-
-    const updateHeader = (scrollPosition: number) => {
-      setScrolled(scrollPosition > window.innerHeight * 0.56);
-    };
-
-    const onNativeScroll = () => updateHeader(window.scrollY);
-
-    if (!Lenis || reducedMotion.matches) {
-      onNativeScroll();
-      window.addEventListener('scroll', onNativeScroll, { passive: true });
-      return () => window.removeEventListener('scroll', onNativeScroll);
-    }
-
-    lenis = new Lenis({
-      lerp: 0.1,
-      smoothWheel: true,
-      syncTouch: false,
-      wheelMultiplier: 1,
-      touchMultiplier: 1,
-      anchors: false,
-    });
-
-    const updateLocation = (hash: string) => {
-      if (window.location.hash !== hash) window.history.replaceState(null, '', hash);
-    };
-
-    const resolveAnchor = (hash: string) => {
-      const target = root.querySelector<HTMLElement>(hash);
-      if (!target) return;
-      lenis?.scrollTo(target, {
-        duration: 1.05,
-        easing: (value) => 1 - Math.pow(1 - value, 4),
-        force: true,
-        onComplete: () => updateLocation(hash),
-      });
-    };
-
-    const onAnchorClick = (event: MouseEvent) => {
-      const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href^="#"]');
-      if (!anchor || !anchor.hash || !root.contains(anchor)) return;
-      event.preventDefault();
-      setMenuOpen(false);
-      resolveAnchor(anchor.hash);
-    };
-
-    const onScroll = () => {
-      if (!lenis) return;
-      updateHeader(lenis.scroll);
-      ScrollTrigger.update();
-    };
-
-    const raf = (time: number) => {
-      lenis?.raf(time);
-      animationFrame = requestAnimationFrame(raf);
-    };
-
-    onScroll();
-    lenis.on('scroll', onScroll);
-    animationFrame = requestAnimationFrame(raf);
-    root.addEventListener('click', onAnchorClick);
-    if (window.location.hash && window.location.hash !== '#home') {
-      requestAnimationFrame(() => lenis?.scrollTo(window.location.hash, { immediate: true, force: true }));
-    }
-    ScrollTrigger.refresh();
-    return () => {
-      cancelAnimationFrame(animationFrame);
-      lenis?.off('scroll', onScroll);
-      root.removeEventListener('click', onAnchorClick);
-      lenis?.destroy();
-    };
-  }, []);
-
-  useGSAP(() => {
-    const mm = gsap.matchMedia();
-    const sectionTriggers: ScrollTrigger[] = [];
-    gsap.utils.toArray<HTMLElement>('.hero, [data-nav-section]').forEach((section) => {
-      sectionTriggers.push(ScrollTrigger.create({
-        trigger: section,
-        start: 'top 45%',
-        end: 'bottom 45%',
-        onToggle: ({ isActive }) => isActive && setActiveSection(`#${section.id}`),
-      }));
-    });
-
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
-      const widePaths = gsap.utils.toArray<SVGPathElement>('.hero .mark-svg--wide .mark-stroke');
-      const stackedPaths = gsap.utils.toArray<SVGPathElement>('.hero .mark-svg--stacked .mark-stroke');
-      const heroPaths = [...widePaths, ...stackedPaths];
-      const wideNotes = gsap.utils.toArray<SVGGElement | SVGCircleElement>('.hero .mark-svg--wide .mark-note, .hero .mark-svg--wide .mark-note-dot');
-      const stackedNotes = gsap.utils.toArray<SVGGElement | SVGCircleElement>('.hero .mark-svg--stacked .mark-note, .hero .mark-svg--stacked .mark-note-dot');
-      heroPaths.forEach((path) => {
-        const length = path.getTotalLength();
-        gsap.set(path, { autoAlpha: 0, strokeDasharray: length, strokeDashoffset: length });
-      });
-
-      const intro = gsap.timeline({ defaults: { ease: 'power4.out' } })
-        .addLabel('signature')
-        .to(widePaths, { autoAlpha: 1, strokeDashoffset: 0, duration: 1.18, stagger: 0.065, ease: 'power2.inOut' }, 'signature')
-        .to(stackedPaths, { autoAlpha: 1, strokeDashoffset: 0, duration: 1.18, stagger: 0.065, ease: 'power2.inOut' }, 'signature')
-        .set(heroPaths, { strokeDasharray: 'none', strokeDashoffset: 0 })
-        .from(wideNotes, { autoAlpha: 0, scale: 0, transformOrigin: 'center', duration: 0.34, stagger: 0.035 }, '-=.3')
-        .from(stackedNotes, { autoAlpha: 0, scale: 0, transformOrigin: 'center', duration: 0.34, stagger: 0.035 }, '<')
-        .from('.hero-role > *', { autoAlpha: 0, y: 14, duration: 0.52, stagger: 0.075 }, '-=.24')
-        .from('.scroll-cue', { autoAlpha: 0, y: 10, duration: 0.5 }, '-=.26');
-
-      const exit = gsap.timeline({
-        defaults: { ease: 'none' },
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom 42%', scrub: 0.68 },
-      })
-        .to('.hero-role', { autoAlpha: 0, y: -18, duration: 0.34 }, 0)
-        .to('.scroll-cue', { autoAlpha: 0, y: 10, duration: 0.3 }, 0)
-        .to('.hero-mark', { autoAlpha: 0, duration: 0.66 }, 0.16)
-        .to('.hero-haze--near', { autoAlpha: 0, scale: 1.08, duration: 1 }, 0)
-        .to('.hero-depth', { autoAlpha: 0.34, duration: 1 }, 0);
-
-      gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
-        gsap.from(element, {
-          autoAlpha: 0,
-          y: 38,
-          duration: 0.78,
-          ease: 'power4.out',
-          scrollTrigger: { trigger: element, start: 'top 86%', once: true },
+"use client";
+import Link from "next/link";
+import { useRef, useState, useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { Brand } from "@/components/Brand";
+import { ProjectVisual } from "@/components/ProjectVisual";
+import { Koala } from "@/components/Koala";
+import { projects, asset } from "@/data/projects";
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+const filters = ["全部", "AI 产品", "交互实验"] as const;
+export default function Home() {
+  const root = useRef<HTMLDivElement>(null);
+  const [filter, setFilter] = useState<string>("全部");
+  const [menu, setMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const paths = gsap.utils.toArray<SVGPathElement>(".hero .brand-letter");
+        paths.forEach((path) => {
+          const length = path.getTotalLength();
+          gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
         });
+        gsap
+          .timeline()
+          .to(paths, {
+            strokeDashoffset: 0,
+            duration: 1.25,
+            stagger: (index) => (index % 7) * 0.08,
+            ease: "power2.inOut",
+          })
+          .set(paths, { strokeDasharray: "none" })
+          .from(".hero-caption", { opacity: 0, y: 12, duration: 0.65 }, "-.35");
+        gsap.to(".hero-signature", {
+          y: -45,
+          opacity: 0,
+          scrollTrigger: {
+            trigger: ".hero",
+            start: "top top",
+            end: "bottom 25%",
+            scrub: 1,
+          },
+        });
+        gsap.fromTo(
+          ".fixed-brand",
+          { autoAlpha: 0, y: -8 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.25,
+            scrollTrigger: {
+              trigger: ".hero",
+              start: "bottom 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+        gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) =>
+          gsap.from(el, {
+            y: 30,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 92%", once: true },
+          }),
+        );
       });
-      return () => {
-        intro.kill();
-        exit.kill();
-      };
-    });
-
-    mm.add('(prefers-reduced-motion: reduce)', () => {
-      gsap.set('[data-reveal]', { autoAlpha: 1, y: 0 });
-      gsap.set('.hero .mark-stroke', { autoAlpha: 1, strokeDasharray: 'none', strokeDashoffset: 0 });
-      gsap.set('.hero .mark-note, .hero .mark-note-dot, .hero-role, .scroll-cue', { autoAlpha: 1, x: 0, y: 0 });
-    });
-
-    requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => {
-      mm.revert();
-      sectionTriggers.forEach((trigger) => trigger.kill());
-    };
-  }, { scope: rootRef });
-
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.fromTo(
+          ".fixed-brand",
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: 0,
+            scrollTrigger: {
+              trigger: ".hero",
+              start: "bottom 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      });
+      return () => mm.revert();
+    },
+    { scope: root },
+  );
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [filter]);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText("3500788359@qq.com");
+      setCopied(true);
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 2500);
+    } catch {
+      window.location.href = "mailto:3500788359@qq.com";
+    }
+  };
   return (
-    <div className="site-shell" ref={rootRef}>
-      <a className={`corner-mark ${scrolled ? 'is-visible' : ''}`} href="#home" aria-label="返回首页"><span className="corner-mark-icon" aria-hidden="true" /></a>
-
+    <div ref={root}>
+      <a href="#home" className="fixed-brand" aria-label="pear 279 返回首页">
+        <Brand compact />
+      </a>
       <header className="site-header">
-        <button className="menu-toggle" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-controls="site-navigation">
-          {menuOpen ? '关闭' : '菜单'}
+        <button
+          className="menu-toggle"
+          onClick={() => setMenu(!menu)}
+          aria-expanded={menu}
+          aria-controls="main-nav"
+        >
+          {menu ? "关闭" : "菜单"}
         </button>
-        <nav id="site-navigation" className={menuOpen ? 'nav is-open' : 'nav'} aria-label="主导航">
-          {navigation.map(([label, href]) => (
-            <a className={activeSection === href ? 'is-active' : ''} key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
+        <nav id="main-nav" className={menu ? "open" : ""} aria-label="主导航">
+          {[
+            ["作品", "#work"],
+            ["经历", "#experience"],
+            ["关于", "#about"],
+            ["联系", "#contact"],
+          ].map(([label, href]) => (
+            <a key={href} href={href} onClick={() => setMenu(false)}>
+              {label}
+            </a>
           ))}
-          <a className="nav-download" href="/李慧珍-AI产品经理-简历.pdf" download>下载简历 <span>↓</span></a>
+          <a href={asset("/resume.pdf")} target="_blank" rel="noreferrer">
+            简历 ↗
+          </a>
         </nav>
       </header>
-
       <main>
         <section className="hero" id="home">
-          <ClickSpark sparkColor="#fff" sparkSize={12} sparkRadius={20} sparkCount={9} duration={500}>
-            <span className="hero-depth" aria-hidden="true" />
-            <span className="hero-haze hero-haze--far" aria-hidden="true" />
-            <span className="hero-haze hero-haze--near" aria-hidden="true" />
-            <div className="hero-mark">
-              <div className="hero-mark-inner"><Mark />
-                <div className="hero-role">
-                  <span>AI PRODUCT · HUMAN FIRST <i aria-hidden="true">●</i></span>
-                  <div><strong>AI 产品经理</strong><em>把复杂 AI 变成自然体验</em></div>
+          <div className="hero-top">
+            <span>LI HUIZHEN / 李慧珍</span>
+            <span>NANJING · CLASS OF 2027</span>
+          </div>
+          <div className="hero-signature">
+            <h1>
+              <Brand responsive />
+            </h1>
+            <div className="hero-caption">
+              <span className="role-label">AI PRODUCT, HUMAN FIRST.</span>
+              <p>
+                <span>研究真实需求</span>
+                <span>把想法做成产品</span>
+              </p>
+            </div>
+          </div>
+          <div className="hero-bottom">
+            <span>AI 产品 / 市场 / 运营 / 数据</span>
+            <a href="#work">
+              探索我的作品 <span>↓</span>
+            </a>
+            <span>CURIOUS BY NATURE.</span>
+          </div>
+          <div className="hero-grain" aria-hidden="true" />
+        </section>
+        <section className="intro wrap" data-reveal>
+          <span className="eyebrow">A LITTLE ABOUT MY WAY</span>
+          <h2>
+            从人的感受出发，
+            <br />
+            把复杂的事做得自然。
+          </h2>
+          <p>
+            我是李慧珍，建筑学出身的 AI 产品人。
+            <br />
+            习惯观察、拆解、构建，也喜欢为理性系统
+            <br className="desktop-break" />
+            留一点温度与想象力。
+          </p>
+          <a className="text-link" href="#about">
+            认识我 <span>↗</span>
+          </a>
+        </section>
+        <section className="work wrap" id="work">
+          <div className="section-heading" data-reveal>
+            <div>
+              <span className="eyebrow">SELECTED WORK / 2025—2026</span>
+              <h2>想法，有了形状。</h2>
+            </div>
+            <div className="filters" aria-label="作品筛选">
+              {filters.map((f) => (
+                <button
+                  key={f}
+                  aria-pressed={filter === f}
+                  onClick={() => setFilter(f)}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="project-grid">
+            {projects
+              .filter((p) => filter === "全部" || p.category === filter)
+              .map((p, i) => (
+                <article
+                  className={`project-card project-${p.slug}`}
+                  key={p.slug}
+                >
+                  <Link
+                    className="project-cover"
+                    href={`/projects/${p.slug}`}
+                    aria-label={`查看 ${p.title} 项目案例`}
+                  >
+                    <ProjectVisual project={p} />
+                    <span className="cover-arrow">↗</span>
+                  </Link>
+                  <div className="project-summary">
+                    <div>
+                      <span className="eyebrow">
+                        {p.category} / {p.year}
+                      </span>
+                      <h3>
+                        <Link href={`/projects/${p.slug}`}>
+                          {p.title}
+                          <span>{p.chinese}</span>
+                        </Link>
+                      </h3>
+                      <p>{p.tagline}</p>
+                    </div>
+                    <span className="project-index">
+                      0{projects.indexOf(p) + 1}
+                    </span>
+                  </div>
+                </article>
+              ))}
+          </div>
+        </section>
+        <section className="experience wrap" id="experience">
+          <div className="section-heading" data-reveal>
+            <div>
+              <span className="eyebrow">IN THE REAL WORLD</span>
+              <h2>
+                在真实业务里，
+                <br />
+                把事情向前推。
+              </h2>
+            </div>
+            <p>
+              研究 → 定义 → 协作 → 验证
+              <br />
+              两段实习，同一条产品主线。
+            </p>
+          </div>
+          <details className="experience-row" open>
+            <summary>
+              <span className="experience-date">2026.05 — 2026.08</span>
+              <h3>
+                腾讯 <span>浏览器产品部 · Agent 组</span>
+              </h3>
+              <span className="experience-role">
+                产品策划 <i>+</i>
+              </span>
+            </summary>
+            <div className="experience-content">
+              <p className="experience-lead">
+                在浏览器场景中，寻找 AI 真正有用的时刻。
+              </p>
+              <div className="experience-columns">
+                <div>
+                  <h4>场景与需求</h4>
+                  <p>
+                    累计参与推进 9 个 P0 / P1 需求，覆盖 AI
+                    信息订阅、智能填表、脚本 / Skill
+                    创建等方向；协同设计、开发及法务对齐方案。
+                  </p>
+                </div>
+                <div>
+                  <h4>模型与体验</h4>
+                  <p>
+                    参与解读、翻译、通用助手与 Agent
+                    评测，设计题集与规则，复盘失败场景，推动功能与模型效果迭代。
+                  </p>
+                </div>
+                <div>
+                  <h4>数据与判断</h4>
+                  <p>
+                    关注
+                    DAU、功能渗透、复访与留存漏斗，结合用户行为与反馈，识别高价值任务和产品问题。
+                  </p>
+                </div>
+              </div>
+              <small>9 个需求为累计参与推进数量。</small>
+            </div>
+          </details>
+          <details className="experience-row">
+            <summary>
+              <span className="experience-date">2025.12 — 2026.04</span>
+              <h3>
+                CodeXpert <span>元数信息技术 · 云端编码智能体</span>
+              </h3>
+              <span className="experience-role">
+                AI 产品经理 <i>+</i>
+              </span>
+            </summary>
+            <div className="experience-content">
+              <p className="experience-lead">
+                把开发任务组织成可交付的工作流。
+              </p>
+              <div className="experience-columns">
+                <div>
+                  <h4>MVP 到上线</h4>
+                  <p>
+                    参与需求拆解、AI
+                    能力设计和测试验证，围绕研发场景推进产品迭代。
+                  </p>
+                </div>
+                <div>
+                  <h4>链路与转化</h4>
+                  <p>
+                    打通需求、代码、测试到 PR 的任务链路，参与新用户 Pro
+                    权益与邀请奖励机制。
+                  </p>
+                </div>
+                <div>
+                  <h4>表达与数据</h4>
+                  <p>
+                    参与 Logo、落地页与核心功能埋点设计，使用 SQL
+                    分析用户路径，为迭代提供依据。
+                  </p>
                 </div>
               </div>
             </div>
-            <a className="scroll-cue" href="#about">
-              <span className="scroll-cue-window">
-                <span className="scroll-cue-track"><span>SCROLL FOR MORE</span><span aria-hidden="true">SCROLL FOR MORE</span></span>
-              </span>
-              <i>↓</i>
-            </a>
-          </ClickSpark>
+          </details>
         </section>
-
-        <section className="about section" id="about" data-motion-section data-nav-section>
-          <div className="section-kicker" data-reveal><span>( 01 )</span><span>ABOUT / INDEX</span></div>
-          <div className="about-layout">
-            <div className="about-primary" data-reveal>
-              <small>AI PRODUCT MANAGER · NANJING</small>
-              <h1>让复杂的 AI，成为自然好用的产品。</h1>
+        <section className="practice wrap" id="practice" data-reveal>
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">BEYOND THE PRODUCT</span>
+              <h2>也关心，如何连接更多人。</h2>
+            </div>
+            <p>
+              市场洞察、内容表达与活动组织，
+              <br />
+              让产品价值走向真实的人群。
+            </p>
+          </div>
+          <div className="practice-grid">
+            <article>
+              <div className="practice-image">
+                <img
+                  src={asset("/media/campus.webp")}
+                  loading="lazy"
+                  alt="校园义卖与活动组织的经历资料"
+                />
+              </div>
+              <span className="eyebrow">校园经历 / ORGANIZE</span>
+              <h3>把想法变成一场共同参与。</h3>
+              <p>
+                建筑学院学生会执行主席，3
+                年学生会工作经历。组织校园义卖、运动会、合唱与专业交流；任内“一院一品”义卖募集
+                10,210 元，部分用于捐赠与物资采购。
+              </p>
+            </article>
+            <article className="market-study">
+              <span className="eyebrow">求职研究案例 / MARKET STUDY</span>
+              <h3>
+                传播的承诺，
+                <br />
+                要与体验一致。
+              </h3>
+              <p>
+                面向腾讯 IEG
+                魔方市场岗位的研究与自我定位：从玩家人群、内容切入点与长期经营出发，思考如何表达产品价值。
+              </p>
+              <div className="study-flow">
+                <span>理解人群</span>
+                <i>↗</i>
+                <span>内容表达</span>
+                <i>↗</i>
+                <span>验证反馈</span>
+              </div>
+              <p className="study-note">
+                基于应聘准备文档整理，非魔方工作室实习经历。
+              </p>
+              <details>
+                <summary>
+                  展开我的市场与运营视角 <span>+</span>
+                </summary>
+                <p>
+                  用访谈和反馈识别参与门槛；围绕不同人群选择信息与渠道；把节点、物料和协作组织起来；再用用户路径与转化数据检查判断。
+                </p>
+              </details>
+            </article>
+          </div>
+        </section>
+        <section className="about" id="about">
+          <div className="wrap about-grid">
+            <div className="about-photo" data-reveal>
+              <img
+                src={asset("/media/profile-candid.webp")}
+                alt="李慧珍的个人照片"
+                loading="lazy"
+              />
+              <span>LI HUIZHEN / 李慧珍</span>
             </div>
             <div className="about-copy" data-reveal>
-              <p>你好，我是李慧珍，一名建筑学背景的 AI 产品人。我的工作从用户洞察开始，穿过数据、模型与协作流程，最终落在真实可用的产品体验上。</p>
-              <p>我关注 AI 产品、市场与运营的交叉实践，熟悉 RAG、Embedding、Transformer、Multi-Agent、Agent Harness，也能用 SQL / Python 辅助决策，用 Figma、Cursor 与 LLM 快速验证方案。</p>
+              <span className="eyebrow">A BUILDER WITH A SOFT SPOT</span>
+              <h2>
+                理性地构建。
+                <br />
+                感性地观察。
+              </h2>
+              <p>
+                建筑学让我习惯看见人与环境的关系；产品实践让我把这种观察，延伸到用户任务、信息结构与系统规则。
+              </p>
+              <p>
+                我喜欢从模糊的问题开始，和用户聊一聊，把线索整理成方案，再亲手把它做出来。关注
+                AI 产品，也乐于参与市场、运营和数据工作。
+              </p>
+              <p>考拉是我的小小偏爱。慢一点观察，认真地行动。</p>
+              <div className="education">
+                <p>
+                  <strong>南京大学 · 建筑学硕士</strong>
+                  <span>2024.09 — 2027.06 / C9 · 985</span>
+                </p>
+                <p>
+                  <strong>三江学院 · 建筑学学士</strong>
+                  <span>2019.09 — 2024.06</span>
+                </p>
+              </div>
+              <div className="skill-list">
+                <span>用户访谈</span>
+                <span>PRD / 原型</span>
+                <span>Agent / RAG</span>
+                <span>模型评测</span>
+                <span>SQL / Python</span>
+                <span>Figma</span>
+                <span>AI 辅助开发</span>
+                <span>项目协作</span>
+              </div>
+              <a
+                className="text-link"
+                href={asset("/resume.pdf")}
+                target="_blank"
+                rel="noreferrer"
+              >
+                查看完整简历 ↗
+              </a>
             </div>
-            <nav className="about-index" aria-label="产品旅程目录" data-reveal>
-              {timeline.map((item, index) => (
-                <a href={item.href} key={item.title}>
-                  <span>0{index + 1}</span><strong>{item.title}</strong><small>{item.type} · {item.date}</small>
-                </a>
-              ))}
-            </nav>
-          </div>
-          <div className="education" data-reveal>
-            <span>EDUCATION</span>
-            <div><strong>南京大学 · C9 / 985</strong><small>建筑学硕士 · 2024—2027（校一等/二等奖学金，优秀志愿者）</small></div>
-            <div><strong>三江学院</strong><small>建筑学学士 · 2019—2024（年级前三，一等奖学金三次）</small></div>
           </div>
         </section>
-
-        <section className="experience section" id="experience" data-motion-section data-nav-section>
-          <ChapterHead no="02" label="EXPERIENCE" title="工作经历" note="两段实习，把 AI 能力放进真实产品与协作流程。" />
-          <div className="work-stream">
-            <article className="experience-row" id="experience-tencent" data-reveal>
-              <div className="experience-main">
-                <div className="experience-head"><span className="experience-no">01</span><div><h3>腾讯</h3><p>浏览器产品部 Agent 组 · 产品策划</p></div><time>2026.05 — 2026.08</time></div>
-                <ul><li>参与 9 个 P0 / P1 需求，协同设计、开发与法务推进落地，覆盖 AI 信息订阅、智能填表、脚本/Skill 创建等功能方向。</li><li>负责翻译、通用助手与 Agent 模型评测，设计题集和规则，推动产品与模型效果迭代。</li><li>分析浏览器功能 DAU 与留存漏斗，基于数据优化高价值任务场景，提升用户复访率。</li></ul>
-                <div className="tag-row"><span>需求策划</span><span>模型评测</span><span>A/B 实验</span><span>内容分发</span></div>
-              </div>
-              <div className="experience-visual visual-violet"><span>AGENT<br />BROWSER</span><small>模型评测 · 内容策略 · 用户洞察</small></div>
-            </article>
-            <article className="experience-row" id="experience-codexpert" data-reveal>
-              <div className="experience-main">
-                <div className="experience-head"><span className="experience-no">02</span><div><h3>元数信息技术</h3><p>CodeXpert 云端编码智能体 · AI 产品经理</p></div><time>2025.12 — 2026.04</time></div>
-                <ul><li>参与 Coding Agent 从 MVP 到上线的完整推进，完成需求拆解、AI 能力设计与测试验证。</li><li>推动“需求—代码—测试—PR”任务链路打通，提升 AI 在真实研发工作流中的可用性。</li><li>参与品牌物料设计（Logo、落地页）与数据埋点方案建设，为功能分析、路径观察和转化优化建立基础。</li></ul>
-                <div className="tag-row"><span>Coding Agent</span><span>研发工作流</span><span>数据埋点</span><span>品牌设计</span></div>
-              </div>
-              <div className="experience-visual visual-amber"><span>CODE<br />XPERT</span><small>MVP · WORKFLOW · SHIPPING</small></div>
-            </article>
-          </div>
-        </section>
-
-        <section className="projects section" id="projects" data-motion-section data-nav-section>
-          <ChapterHead no="03" label="SELECTED PROJECTS" title="项目作品" note="三个产品，回应情绪、旅行与无障碍感知中的真实问题。" />
-          <div className="work-stream project-list">
-            {projects.map((project) => (
-              <article className="project" id={project.id} key={project.id} data-reveal>
-                <div className="project-info">
-                  <div className="project-meta"><span>{project.no}</span><time>{project.date}</time></div>
-                  <h3>{project.title}</h3><h4>{project.subtitle}</h4><p>{project.description}</p>
-                  <div className="tag-row">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                  <a href={project.repo} target="_blank" rel="noreferrer" className="text-link">{project.repoLabel}</a>
-                </div>
-                <a href={project.repo} target="_blank" rel="noreferrer" className={`project-visual project-visual--${project.tone}`} aria-label={`查看 ${project.title} 的 GitHub`}>
-                  <span className="project-ghost">{project.visualTitle.map((line) => <span key={line}>{line}</span>)}</span>
-                  <span className="project-open">OPEN ↗</span>
-                  <span className="project-keywords">{project.keywords.map((keyword) => <small key={keyword}>{keyword}</small>)}</span>
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="skills section" id="skills" data-motion-section data-nav-section>
-          <ChapterHead no="04" label="CAPABILITIES" title="技能特长" note="产品判断、AI 理解、数据意识与交付能力，组成同一条工作链路。" />
-          <div className="skill-rails" data-reveal>
-            {skillRows.map((row, rowIndex) => (
-              <div className={`skill-rail ${rowIndex ? 'skill-rail--reverse' : ''}`} key={rowIndex}>
-                <div className="skill-track">
-                  <div className="skill-set">{row.map((card) => <SkillCard card={card} key={card.title} />)}</div>
-                  <div className="skill-set" aria-hidden="true">{row.map((card) => <SkillCard card={card} duplicate key={`duplicate-${card.title}`} />)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="skills-note">稳定、善沟通、有推进节奏；建筑训练带来的结构意识和审美判断，让我习惯同时看见产品的逻辑与体验。</p>
-        </section>
-
-        <section className="contact section" id="contact" data-motion-section data-nav-section>
-          <ChapterHead no="05" label="CONTACT" title="联系我" note="如果你也在把 AI 变成真正有用的产品，我们可以聊聊。" />
-          <div className="contact-layout" data-reveal>
-            <p>OPEN TO<br />GOOD IDEAS <span>↘</span></p>
-            <div className="contact-links">
-              <a href="mailto:3500788359@qq.com"><small>EMAIL</small><span>3500788359@qq.com</span><b>↗</b></a>
-              <a href="tel:+8615952105455"><small>PHONE</small><span>159 5210 5455</span><b>↗</b></a>
-              <a href="https://github.com/pear279" target="_blank" rel="noreferrer"><small>GITHUB</small><span>@pear279</span><b>↗</b></a>
+        <section className="contact wrap" id="contact" data-reveal>
+          <span className="eyebrow">LET&apos;S MAKE SOMETHING MATTER.</span>
+          <h2>
+            下一个好想法，
+            <br />
+            一起做出来。
+          </h2>
+          <div className="contact-bottom">
+            <div>
+              <p>
+                期待 AI 产品机会，
+                <br />
+                也欢迎市场、运营与数据方向的交流。
+              </p>
+              <a className="email-link" href="mailto:3500788359@qq.com">
+                3500788359@qq.com ↗
+              </a>
+              <button
+                className="copy-email"
+                onClick={copyEmail}
+                aria-live="polite"
+              >
+                {copied ? "已复制 ✓" : "复制邮箱"}
+              </button>
+            </div>
+            <div className="contact-social">
+              <a
+                href="https://github.com/pear279"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub ↗
+              </a>
+              <a href={asset("/resume.pdf")} download>
+                下载简历 ↓
+              </a>
+              <a href="tel:+8615952105455">159 5210 5455 ↗</a>
             </div>
           </div>
         </section>
       </main>
-
-      <footer><a className="footer-logo" href="#home" aria-label="返回首页"><span className="corner-mark-icon footer-mark-icon" aria-hidden="true" /></a><p>李慧珍 · AI PRODUCT MANAGER</p><p>© 2026 NANJING, CHINA</p><a href="#home">BACK TO TOP ↑</a></footer>
+      <footer className="site-footer wrap">
+        <a href="#home" aria-label="返回首页">
+          <Brand compact />
+        </a>
+        <span>© 2026 李慧珍</span>
+        <a href="#home">BACK TO TOP ↑</a>
+      </footer>
+      <Koala />
     </div>
   );
 }

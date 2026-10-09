@@ -1,29 +1,30 @@
-import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
-import './globals.css';
-
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
 export const metadata: Metadata = {
-  title: 'pear279 · 李慧珍｜AI 产品经理',
-  description: '李慧珍的 AI 产品经理个人作品集：工作经历、产品项目、技能与联系方式。',
-  icons: { icon: '/favicon.svg' },
+  title: "pear 279 · 李慧珍 | AI 产品与创意实践",
+  description:
+    "李慧珍的个人作品集。建筑学背景，专注 AI 产品，从用户研究、体验设计到开发验证，探索市场、运营与数据。",
+  icons: { icon: `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/favicon.svg` },
+  openGraph: {
+    title: "pear 279 · 李慧珍",
+    description: "理性地构建，感性地观察。AI 产品与创意实践。",
+    type: "website",
+    locale: "zh_CN",
+  },
 };
-
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
-  themeColor: '#0b0d0c',
+  themeColor: "#101312",
 };
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="zh-CN">
-      <head>
-        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.25/dist/lenis.css" />
-      </head>
-      <body>
-        {children}
-        <Script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js" strategy="beforeInteractive" />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

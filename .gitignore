@@ -5,3 +5,8 @@ node_modules/
 tmp/
 output/
 *.tsbuildinfo
+
+out/
+.vercel/
+# Local source materials are not deployment assets.
+materials/
