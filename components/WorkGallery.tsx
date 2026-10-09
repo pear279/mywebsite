@@ -16,8 +16,9 @@ export function WorkGallery() {
     const el = rail.current;
     if (!el) return;
     const card = el.querySelector<HTMLElement>(".gallery-card");
-    setPosition(Math.min(selected.length - 1, Math.round(el.scrollLeft / ((card?.offsetWidth || 1) + 24))));
-    setEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 2);
+    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2;
+    setPosition(atEnd && el.scrollLeft > 0 ? selected.length - 1 : Math.min(selected.length - 1, Math.round(el.scrollLeft / ((card?.offsetWidth || 1) + 24))));
+    setEnd(atEnd);
   };
   useEffect(() => {
     const el = rail.current;

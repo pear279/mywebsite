@@ -1581,7 +1581,7 @@ button {
 .gallery-link { display: block; height: 100%; position: relative; border-radius: 28px; overflow: hidden; isolation: isolate; color: var(--ink); transition: transform 220ms ease; }
 .gallery-link .project-visual { height: 100%; }
 .gallery-link .visual-note, .gallery-link .visual-caption, .gallery-link .pet-status, .gallery-link .sound-bottom { display: none; }
-.gallery-link .phone { width: 40%; max-height: 64%; pointer-events: none; }
+.gallery-link .phone { width: 40%; max-height: 54%; pointer-events: none; }
 .gallery-link .phone-0 { left: 11%; top: 11%; }
 .gallery-link .phone-1 { left: 49%; top: 17%; }
 .gallery-link .koala-visual { width: 53%; top: 14%; left: 24%; pointer-events: none; }
@@ -1617,6 +1617,7 @@ button {
   .work-gallery { padding-bottom: 80px; }
   .work-gallery .section-heading { align-items: flex-start; gap: 24px; }
   .gallery-card { flex-basis: 82vw; height: 510px; }
+  .gallery-link .phone { max-height: 49%; }
   .gallery-copy { left: 24px; right: 24px; bottom: 26px; }
   .gallery-copy h3 { font-size: 27px; }
   .gallery-hint { max-width: 140px; line-height: 1.8; }
