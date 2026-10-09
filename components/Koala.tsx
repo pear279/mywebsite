@@ -14,7 +14,7 @@ export function Koala() {
     timer.current = setTimeout(() => { manual.current = false; setAction(chapterAction.current); }, 4000);
   };
   useEffect(() => {
-    const actions: Record<string, string> = { home: "greet", intro: "wait", work: "think", experience: "work", practice: "celebrate", about: "ball", contact: "eat" };
+    const actions: Record<string, string> = { home: "greet", intro: "wait", work: "think", experience: "work", explore: "celebrate", resume: "wait", about: "ball", contact: "eat" };
     let frame = 0;
     const update = () => {
       frame = 0;

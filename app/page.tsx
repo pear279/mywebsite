@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Brand } from "@/components/Brand";
 import { WorkGallery } from "@/components/WorkGallery";
-import { Skills } from "@/components/Skills";
+import { ExploreFolders } from "@/components/ExploreFolders";
 import { Koala } from "@/components/Koala";
 import { asset } from "@/data/projects";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -100,18 +100,17 @@ export default function Home() {
         </button>
         <nav id="main-nav" className={menu ? "open" : ""} aria-label="主导航">
           {[
+            ["首页", "#home"],
+            ["我", "#about"],
             ["作品", "#work"],
             ["经历", "#experience"],
-            ["关于", "#about"],
             ["联系", "#contact"],
           ].map(([label, href]) => (
             <a key={href} href={href} onClick={() => setMenu(false)}>
               {label}
             </a>
           ))}
-          <a href={asset("/resume.pdf")} target="_blank" rel="noreferrer">
-            简历 ↗
-          </a>
+          <a href="#resume" onClick={() => setMenu(false)}>简历</a>
         </nav>
       </header>
       <main>
@@ -141,23 +140,9 @@ export default function Home() {
           </div>
           <div className="hero-grain" aria-hidden="true" />
         </section>
-        <section className="intro wrap" id="intro" data-reveal>
-          <span className="eyebrow">A LITTLE ABOUT MY WAY</span>
-          <h2>
-            从人的感受出发，
-            <br />
-            把复杂的事做得自然。
-          </h2>
-          <p>
-            我是李慧珍，建筑学出身的 AI 产品人。
-            <br />
-            习惯观察、拆解、构建，也喜欢为理性系统
-            <br className="desktop-break" />
-            留一点温度与想象力。
-          </p>
-          <a className="text-link" href="#about">
-            认识我 <span>↗</span>
-          </a>
+        <section className="me-section wrap" id="about">
+          <div className="me-photo" data-reveal><img src={asset("/media/life-photo.webp")} alt="李慧珍的生活照" loading="lazy" /><span>LI HUIZHEN / 李慧珍</span></div>
+          <div className="me-copy" data-reveal><span className="eyebrow">A LITTLE ABOUT ME</span><h2>我，李慧珍。</h2><p className="me-lead">建筑学背景，关注人与体验。<br />用 AI 把想法做成产品。</p><dl className="me-facts"><div><dt>基本信息</dt><dd>南京 · 2027 届<br />南京大学 · 建筑学硕士</dd></div><div><dt>目标岗位</dt><dd><strong>AI 产品</strong><br />市场 / 运营 / 数据</dd></div><div><dt>性格</dt><dd>ENFJ-A<span>乐于连接，喜欢共创。</span></dd></div></dl><a className="text-link" href="#explore">我的兴趣与工具 ↗</a></div>
         </section>
         <WorkGallery />
         <section className="experience wrap" id="experience">
@@ -165,18 +150,14 @@ export default function Home() {
             <div>
               <span className="eyebrow">IN THE REAL WORLD</span>
               <h2>
-                在真实业务里，
-                <br />
-                把事情向前推。
+                经历。
               </h2>
             </div>
             <p>
-              研究 → 定义 → 协作 → 验证
-              <br />
-              两段实习，同一条产品主线。
+              腾讯 / CodeXpert
             </p>
           </div>
-          <details className="experience-row" open>
+          <details className="experience-row">
             <summary>
               <span className="experience-date">2026.05 — 2026.08</span>
               <h3>
@@ -257,120 +238,11 @@ export default function Home() {
             </div>
           </details>
         </section>
-        <section className="practice wrap" id="practice" data-reveal>
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">BEYOND THE PRODUCT</span>
-              <h2>也关心，如何连接更多人。</h2>
-            </div>
-            <p>
-              市场洞察、内容表达与活动组织，
-              <br />
-              让产品价值走向真实的人群。
-            </p>
-          </div>
-          <div className="practice-grid">
-            <article>
-              <div className="practice-image">
-                <img
-                  src={asset("/media/campus.webp")}
-                  loading="lazy"
-                  alt="校园义卖与活动组织的经历资料"
-                />
-              </div>
-              <span className="eyebrow">校园经历 / ORGANIZE</span>
-              <h3>把想法变成一场共同参与。</h3>
-              <p>
-                建筑学院学生会执行主席，3
-                年学生会工作经历。组织校园义卖、运动会、合唱与专业交流；任内“一院一品”义卖募集
-                10,210 元，部分用于捐赠与物资采购。
-              </p>
-            </article>
-            <article className="market-study">
-              <span className="eyebrow">求职研究案例 / MARKET STUDY</span>
-              <h3>
-                传播的承诺，
-                <br />
-                要与体验一致。
-              </h3>
-              <p>
-                面向腾讯 IEG
-                魔方市场岗位的研究与自我定位：从玩家人群、内容切入点与长期经营出发，思考如何表达产品价值。
-              </p>
-              <div className="study-flow">
-                <span>理解人群</span>
-                <i>↗</i>
-                <span>内容表达</span>
-                <i>↗</i>
-                <span>验证反馈</span>
-              </div>
-              <p className="study-note">
-                基于应聘准备文档整理，非魔方工作室实习经历。
-              </p>
-              <details>
-                <summary>
-                  展开我的市场与运营视角 <span>+</span>
-                </summary>
-                <p>
-                  用访谈和反馈识别参与门槛；围绕不同人群选择信息与渠道；把节点、物料和协作组织起来；再用用户路径与转化数据检查判断。
-                </p>
-              </details>
-            </article>
-          </div>
-        </section>
-        <section className="about" id="about">
-          <div className="wrap about-grid">
-            <div className="about-photo" data-reveal>
-              <img
-                src={asset("/media/life-photo.webp")}
-                alt="李慧珍的个人照片"
-                loading="lazy"
-              />
-              <span>LI HUIZHEN / 李慧珍</span>
-            </div>
-            <div className="about-copy" data-reveal>
-              <span className="eyebrow">A BUILDER WITH A SOFT SPOT</span>
-              <h2>
-                理性地构建。
-                <br />
-                感性地观察。
-              </h2>
-              <p>
-                建筑学让我习惯看见人与环境的关系；产品实践让我把这种观察，延伸到用户任务、信息结构与系统规则。
-              </p>
-              <p>
-                我喜欢从模糊的问题开始，和用户聊一聊，把线索整理成方案，再亲手把它做出来。关注
-                AI 产品，也乐于参与市场、运营和数据工作。
-              </p>
-              <p>考拉是我的小小偏爱。慢一点观察，认真地行动。</p>
-              <div className="education">
-                <p>
-                  <strong>南京大学 · 建筑学硕士</strong>
-                  <span>2024.09 — 2027.06 / C9 · 985</span>
-                </p>
-                <p>
-                  <strong>三江学院 · 建筑学学士</strong>
-                  <span>2019.09 — 2024.06</span>
-                </p>
-              </div>
-              <Skills />
-              <a
-                className="text-link"
-                href={asset("/resume.pdf")}
-                target="_blank"
-                rel="noreferrer"
-              >
-                查看完整简历 ↗
-              </a>
-            </div>
-          </div>
-        </section>
+        <ExploreFolders />
         <section className="contact wrap" id="contact" data-reveal>
-          <span className="eyebrow">LET&apos;S MAKE SOMETHING MATTER.</span>
+          <span className="eyebrow">LET&apos;S TALK</span>
           <h2>
-            下一个好想法，
-            <br />
-            一起做出来。
+            联系我。
           </h2>
           <div className="contact-bottom">
             <div>
@@ -405,6 +277,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <section className="resume-section wrap" id="resume" data-reveal><div><span className="eyebrow">RESUME</span><h2>简历。</h2><p>教育、实践与能力，一份完整记录。</p></div><div><Link className="resume-primary" href="/resume">查看简历 ↗</Link><a className="text-link" href={asset("/resume.pdf")} download>下载 PDF ↓</a></div></section>
       </main>
       <footer className="site-footer wrap">
         <a href="#home" aria-label="返回首页">

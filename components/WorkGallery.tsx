@@ -43,7 +43,7 @@ export function WorkGallery() {
   };
   return <section className="work work-gallery" id="work">
     <div className="section-heading wrap" data-reveal>
-      <div><span className="eyebrow">SELECTED WORK / 2025—2026</span><h2>想法，有了形状。</h2><p className="gallery-intro">从真实需求出发，探索 AI 与日常生活的交点。</p></div>
+      <div><span className="eyebrow">SELECTED WORK / 2025—2026</span><h2>作品。</h2><p className="gallery-intro">AI 产品与交互实验。</p></div>
       <div className="filters" aria-label="作品筛选">{filters.map(f => <button key={f} aria-pressed={filter === f} onClick={() => setFilter(f)}>{f}</button>)}</div>
     </div>
     <div ref={rail} className="gallery-rail" role="region" aria-label="横向作品画廊，可使用左右方向键浏览" tabIndex={0} onScroll={update}

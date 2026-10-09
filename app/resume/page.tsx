@@ -15,7 +15,7 @@ export default function ResumePage() {
       </header>
       <section className="card">
         <span className="eyebrow">RESUME / 2026</span>
-        <h1>一页认识我。</h1>
+        <h1>简历。</h1>
         <p>
           李慧珍 · 南京大学建筑学硕士 · 2027 届<br />
           AI 产品 / 市场 / 运营 / 数据
