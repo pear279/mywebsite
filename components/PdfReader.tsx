@@ -15,6 +15,7 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
   const [text, setText] = useState("");
   const frame = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const previousRender = useRef<RenderTask | null>(null);
 
   useEffect(() => {
     let disposed = false;
@@ -51,6 +52,7 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
     setError(false);
     setText("");
     document.getPage(page).then(async pdfPage => {
+      await previousRender.current?.promise.catch(() => {});
       if (disposed) return;
       const original = pdfPage.getViewport({ scale: 1 });
       const viewport = pdfPage.getViewport({ scale: Math.min(width / original.width, height / original.height) });
@@ -62,6 +64,7 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
       const context = surface.getContext("2d");
       if (!context) throw new Error("Canvas unavailable");
       render = pdfPage.render({ canvasContext: context, viewport, transform: [scale, 0, 0, scale, 0, 0] });
+      previousRender.current = render;
       await render.promise;
       if (disposed) return;
       setBusy(false);
@@ -80,7 +83,7 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
     <div className="pdf-paper" ref={frame} aria-busy={busy}>
       {busy && !error && <p className="pdf-status" role="status">正在加载页面…</p>}
       {error && <p className="pdf-status" role="alert">暂时无法加载。<button type="button" onClick={() => setAttempt(value => value + 1)}>重新加载 ↻</button></p>}
-      <canvas key={`${page}-${width}-${height}`} ref={canvas} role="img" aria-label={`${title}，第 ${page} 页`} style={{ visibility: busy || error ? "hidden" : "visible" }} />
+      <canvas ref={canvas} role="img" aria-label={`${title}，第 ${page} 页`} style={{ visibility: busy || error ? "hidden" : "visible" }} />
       <p className="sr-only">{text}</p>
     </div>
     <p className="pdf-page-caption" aria-live="polite">{document && !busy && !error ? `第 ${page} 页，共 ${document.numPages} 页` : ""}</p>
