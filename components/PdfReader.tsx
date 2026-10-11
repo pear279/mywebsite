@@ -8,6 +8,8 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
   const [page, setPage] = useState(1);
   const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [attempt, setAttempt] = useState(0);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState(false);
   const [text, setText] = useState("");
@@ -17,6 +19,9 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
   useEffect(() => {
     let disposed = false;
     let task: PDFDocumentLoadingTask | undefined;
+    setDocument(null);
+    setBusy(true);
+    setError(false);
     import("pdfjs-dist/legacy/build/pdf.mjs").then(pdfjs => {
       if (disposed) return;
       const resources = asset("/pdfjs/4.10.38/");
@@ -25,17 +30,20 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
       return task.promise;
     }).then(pdf => { if (pdf && !disposed) setDocument(pdf); }).catch(() => { if (!disposed) { setError(true); setBusy(false); } });
     return () => { disposed = true; void task?.destroy(); };
-  }, [file]);
+  }, [file, attempt]);
 
   useEffect(() => {
     if (!frame.current) return;
-    const observer = new ResizeObserver(([entry]) => setWidth(Math.floor(entry.contentRect.width)));
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.floor(entry.contentRect.width));
+      setHeight(Math.floor(entry.contentRect.height));
+    });
     observer.observe(frame.current);
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!document || !width || !canvas.current) return;
+    if (!document || !width || !height || !canvas.current) return;
     let disposed = false;
     let render: RenderTask | undefined;
     const surface = canvas.current;
@@ -44,7 +52,8 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
     setText("");
     document.getPage(page).then(async pdfPage => {
       if (disposed) return;
-      const viewport = pdfPage.getViewport({ scale: width / pdfPage.getViewport({ scale: 1 }).width });
+      const original = pdfPage.getViewport({ scale: 1 });
+      const viewport = pdfPage.getViewport({ scale: Math.min(width / original.width, height / original.height) });
       const scale = Math.min(window.devicePixelRatio || 1, 2);
       surface.width = Math.floor(viewport.width * scale);
       surface.height = Math.floor(viewport.height * scale);
@@ -60,7 +69,7 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
       if (!disposed) setText(content.items.map(item => "str" in item ? item.str : "").join(" "));
     }).catch(() => { if (!disposed) { setError(true); setBusy(false); } });
     return () => { disposed = true; render?.cancel(); };
-  }, [document, page, width]);
+  }, [document, page, width, height]);
 
   return <div className="pdf-reader">
     <div className="pdf-controls" role="group" aria-label="作品集翻页">
@@ -70,8 +79,8 @@ export function PdfReader({ file, title }: { file: string; title: string }) {
     </div>
     <div className="pdf-paper" ref={frame} aria-busy={busy}>
       {busy && !error && <p className="pdf-status" role="status">正在加载页面…</p>}
-      {error && <p className="pdf-status" role="alert">暂时无法加载，请尝试<a href={asset(file)} target="_blank" rel="noreferrer">新窗口预览 ↗</a>。</p>}
-      <canvas key={`${page}-${width}`} ref={canvas} role="img" aria-label={`${title}，第 ${page} 页`} style={{ visibility: busy || error ? "hidden" : "visible" }} />
+      {error && <p className="pdf-status" role="alert">暂时无法加载。<button type="button" onClick={() => setAttempt(value => value + 1)}>重新加载 ↻</button></p>}
+      <canvas key={`${page}-${width}-${height}`} ref={canvas} role="img" aria-label={`${title}，第 ${page} 页`} style={{ visibility: busy || error ? "hidden" : "visible" }} />
       <p className="sr-only">{text}</p>
     </div>
     <p className="pdf-page-caption" aria-live="polite">{document && !busy && !error ? `第 ${page} 页，共 ${document.numPages} 页` : ""}</p>

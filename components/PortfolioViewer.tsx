@@ -20,7 +20,6 @@ export function PortfolioViewer({ documents }: { documents: Portfolio[] }) {
     <section className="portfolio-preview" id="portfolio-preview" aria-label="作品集在线预览">
       <div className="portfolio-toolbar">
         <h2 aria-live="polite">{current.title}<span>PDF / {current.pages} 页</span></h2>
-        <div><a href={asset(current.file)} target="_blank" rel="noreferrer">新窗口预览 ↗</a><a href={asset(current.file)} download>下载 PDF ↓</a></div>
       </div>
       <PdfReader key={current.id} file={current.file} title={current.title} />
     </section>
