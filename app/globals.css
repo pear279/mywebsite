@@ -1814,7 +1814,7 @@ body, .hero, .about, .contact { background: #fff; }
 .portfolio-options strong { display: block; font-size: 17px; font-weight: 500; }
 .portfolio-options small { display: block; margin-top: 9px; font-size: 11px; color: var(--muted); }
 .portfolio-option-arrow { margin-left: auto; font-size: 20px; }
-.portfolio-preview { height: calc(100svh - 64px); max-height: 900px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 12px; scroll-margin-top: 24px; }
+.portfolio-preview { height: calc(100svh - 164px); max-height: 900px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 12px; scroll-margin-top: 24px; }
 .portfolio-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
 .portfolio-toolbar h2 { font-size: 20px; margin: 0; }
 .portfolio-toolbar h2 span { display: block; font: 11px var(--mono); color: var(--muted); margin-top: 8px; }
