@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { asset } from "@/data/projects";
+import { PdfReader } from "@/components/PdfReader";
 
 type Portfolio = { id: string; title: string; subtitle: string; pages: number; file: string; cover: string };
 
@@ -21,10 +22,7 @@ export function PortfolioViewer({ documents }: { documents: Portfolio[] }) {
         <h2 aria-live="polite">{current.title}<span>PDF / {current.pages} 页</span></h2>
         <div><a href={asset(current.file)} target="_blank" rel="noreferrer">新窗口预览 ↗</a><a href={asset(current.file)} download>下载 PDF ↓</a></div>
       </div>
-      <object key={current.id} data={`${asset(current.file)}#view=FitH`} type="application/pdf" className="portfolio-pdf" aria-label={`${current.title} PDF 在线预览`}>
-        <div className="portfolio-fallback"><img src={asset(current.cover)} alt={`${current.title}封面`} /><p>点击打开完整作品集。</p><a href={asset(current.file)} target="_blank" rel="noreferrer">在线预览 PDF ↗</a></div>
-      </object>
-      <p className="collection-footnote">如预览未显示，可在新窗口打开 PDF。</p>
+      <PdfReader key={current.id} file={current.file} title={current.title} />
     </section>
   </div>;
 }

@@ -10,3 +10,4 @@ out/
 .vercel/
 # Local source materials are not deployment assets.
 materials/
+public/pdfjs/
