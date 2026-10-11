@@ -15,7 +15,7 @@
 - **联系**：邮箱、电话、GitHub。
 - **简历**：在线查看与下载 PDF。
 
-「探索我的日常」包含技能、校园、在读、在玩四个互动文件夹。校园以活动照片为主；在读展示真实阅读快照；在玩介绍六款休闲益智游戏。考拉会随章节切换动作。
+「探索我的日常」包含技能、校园、在读、在玩、建筑作品集、产品作品集六个互动文件夹。校园以活动照片为主；在读展示真实阅读快照；在玩介绍六款休闲益智游戏。建筑作品集可切换本科与硕士 PDF，产品作品集可直接在线预览，并支持新窗口打开和下载。考拉会随章节切换动作。
 
 ## 本地开发与验证
 
@@ -55,6 +55,7 @@ GitHub Pages 构建使用 `NEXT_PUBLIC_BASE_PATH=/mywebsite`；部署到根域�
 | 文件夹与探索详情 | `components/ExploreFolders.tsx`、`data/explore.ts`、`app/explore/[slug]/page.tsx` |
 | 校园照片浏览 | `components/CampusGallery.tsx`、`public/media/` |
 | 阅读书目与进度 | `data/reading.ts`、`components/BookShelf.tsx` |
+| 作品集 PDF 与封面 | `public/portfolios/`、`components/PortfolioViewer.tsx` |
 | 公开简历 | `public/resume.pdf` |
 
 阅读信息为 **2026-10-10 的静态快照**，不会在访问网站时自动查询个人账户。更新书目时同步修改数据与快照日期；书籍封面使用微信读书提供的远程图片，其余主要图片存放在本地公开资源目录。

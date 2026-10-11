@@ -3,7 +3,18 @@ export const folders = [
   { slug: "campus", title: "校园", english: "CAMPUS", note: "组织活动，也记录相遇", color: "rose", papers: ["一起参与", "10,210 元", "校园日常"] },
   { slug: "reading", title: "在读", english: "READING", note: "保持好奇，慢慢读", color: "sand", papers: ["产品经理成长笔记", "学会提问", "生意的三个本质"] },
   { slug: "playing", title: "在玩", english: "PLAYING", note: "休闲 · 益智 · 小小快乐", color: "lilac", papers: ["光遇", "星露谷物语", "再玩一局"] },
+  { slug: "architecture", title: "建筑作品集", english: "ARCHITECTURE", note: "本科 · 硕士 / 空间与概念", color: "sky", papers: ["本科作品集", "硕士概念设计", "空间与观察"] },
+  { slug: "product", title: "产品作品集", english: "PRODUCT", note: "研究 · 策略 · 产品体验", color: "peach", papers: ["AI 产品", "用户研究", "产品体验"] },
 ];
+export const portfolios = {
+  architecture: [
+    { id: "undergraduate", title: "本科作品集", subtitle: "建筑设计", pages: 21, file: "/portfolios/architecture-undergraduate.pdf", cover: "/portfolios/undergraduate-cover.webp" },
+    { id: "masters", title: "硕士作品集", subtitle: "概念设计", pages: 44, file: "/portfolios/architecture-masters.pdf", cover: "/portfolios/masters-cover.webp" },
+  ],
+  product: [
+    { id: "product", title: "AI 产品作品集", subtitle: "研究 · 策略 · 体验", pages: 30, file: "/portfolios/product.pdf", cover: "/portfolios/product-cover.webp" },
+  ],
+};
 export const skills = [
   { title: "用户与市场", icon: "◎", text: "用户访谈、问卷调研、竞品分析。把场景与需求整理清楚。", tools: ["用户研究", "需求分析", "市场洞察"] },
   { title: "产品与体验", icon: "◇", text: "产品规划、PRD、原型与交互。跟进方案、协作和交付。", tools: ["PRD", "Figma / 墨刀", "项目推进"] },
